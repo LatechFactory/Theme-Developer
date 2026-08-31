@@ -1,0 +1,1376 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "product-information",
+      "blocks": {
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
+          "settings": {
+            "media_presentation": "grid",
+            "media_columns": "one",
+            "image_gap": 16,
+            "large_first_image": false,
+            "icons_style": "arrow",
+            "slideshow_controls_style": "counter",
+            "slideshow_mobile_controls_style": "dots",
+            "thumbnail_position": "right",
+            "thumbnail_width": 44,
+            "thumbnail_radius": 0,
+            "aspect_ratio": "adapt",
+            "constrain_to_viewport": false,
+            "media_fit": "contain",
+            "media_radius": 32,
+            "extend_media": false,
+            "zoom": true,
+            "video_loop": false,
+            "hide_variants": true,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "product-details": {
+          "type": "_product-details",
+          "static": true,
+          "settings": {
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "details_position": "flex-start",
+            "gap": 14,
+            "sticky_details_desktop": true,
+            "background_media": "none",
+            "background_color": "",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
+            "padding-block-start": 16,
+            "padding-block-end": 24,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "ena_badge": {
+              "type": "ena-badge",
+              "settings": {
+                "prefix": "AHORRÁ",
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "title": {
+              "type": "text",
+              "name": "Título",
+              "settings": {
+                "text": "<h1>{{ closest.product.title }}</h1>",
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h3",
+                "font": "var(--font-primary--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 8,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "ena_rating": {
+              "type": "ena-rating",
+              "settings": {
+                "text": "138 reseñas · 94% positivas",
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "price": {
+              "type": "price",
+              "settings": {
+                "show_sale_price_first": true,
+                "show_installments": false,
+                "show_tax_info": false,
+                "type_preset": "paragraph",
+                "width": "100%",
+                "alignment": "left",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "text_color": "",
+                "padding-block-start": 12,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "ena_chips": {
+              "type": "ena-value-chips",
+              "settings": {
+                "servings_map": "150 g:30\n300 g:60\n1 Kg:200\nMonodosis:20",
+                "padding-block-start": 14,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "ena_countdown": {
+              "type": "ena-countdown",
+              "settings": {
+                "label": "¡Apurate! La oferta termina en",
+                "end_date": "2026-07-14T00:00:00-03:00",
+                "padding-block-start": 10,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "descripcion": {
+              "type": "text",
+              "name": "Descripción",
+              "settings": {
+                "text": "{{ closest.product.description }}",
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-primary--family)",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 10,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "variant_picker": {
+              "type": "variant-picker",
+              "settings": {
+                "variant_style": "buttons",
+                "show_swatches": false,
+                "option_label_text_color": "",
+                "variant_style_class": "default",
+                "custom_variant_background": "{{ settings.color_palette.background }}",
+                "custom_variant_text": "{{ settings.color_palette.foreground }}",
+                "custom_variant_border": "{{ settings.color_palette.foreground }}",
+                "selected_variant_style_class": "default",
+                "custom_selected_variant_background": "{{ settings.color_palette.foreground }}",
+                "custom_selected_variant_text": "{{ settings.color_palette.background }}",
+                "custom_selected_variant_border": "{{ settings.color_palette.foreground }}",
+                "alignment": "left",
+                "padding-block-start": 12,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "ena_mode": {
+              "type": "ena-purchase-mode",
+              "settings": {
+                "heading": "Elegí cómo comprarlo",
+                "subscribe_title": "Suscribite y ahorrá",
+                "onetime_title": "Compra única",
+                "demo_mode": true,
+                "demo_discount": 25,
+                "demo_frequencies": "Entrega cada 1 mes\nEntrega cada 2 meses\nEntrega cada 3 meses",
+                "benefits": "25% de descuento en cada envío\nEnvío siempre gratis\nCancelá o pausá cuando quieras",
+                "padding-block-start": 14,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "inventory": {
+              "type": "product-inventory",
+              "settings": {
+                "inventory_threshold": 25,
+                "show_inventory_quantity": true,
+                "text_color": "",
+                "padding-block-start": 12,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "ena_qty_discount": {
+              "type": "ena-qty-discount",
+              "settings": {
+                "heading": "Comprá más y ahorrá",
+                "tag_prefix": "AHORRÁ",
+                "pack2_discount": 20,
+                "pack3_discount": 30,
+                "image_x1": "shopify://shop_images/1unidad.png",
+                "image_x2": "shopify://shop_images/2unidad.png",
+                "image_x3": "shopify://shop_images/3unidad.png",
+                "padding-block-start": 16,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "buy_buttons": {
+              "type": "buy-buttons",
+              "settings": {
+                "stacking": true,
+                "text_color": "",
+                "show_pickup_availability": false,
+                "gift_card_form": false,
+                "recipient_button_style": "default",
+                "recipient_button_background": "{{ settings.color_palette.background }}",
+                "recipient_button_text": "{{ settings.color_palette.foreground }}",
+                "recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_style": "default",
+                "selected_recipient_button_background": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_text": "{{ settings.color_palette.background }}",
+                "selected_recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "input_style": "default",
+                "input_background_color": "{{ settings.color_palette.background }}",
+                "input_text_color": "{{ settings.color_palette.foreground }}",
+                "input_border_color": "{{ settings.color_palette.foreground }}",
+                "border_width": 1,
+                "border_radius": 0,
+                "padding-block-start": 10,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "quantity": {
+                  "type": "quantity",
+                  "static": true,
+                  "settings": {
+                    "input_style": "default",
+                    "input_background_color": "{{ settings.color_palette.background }}",
+                    "input_text_color": "{{ settings.color_palette.foreground }}",
+                    "input_border_color": "{{ settings.color_palette.foreground }}",
+                    "border_width": 1,
+                    "border_radius": 0
+                  },
+                  "blocks": {}
+                },
+                "add-to-cart": {
+                  "type": "add-to-cart",
+                  "static": true,
+                  "settings": {
+                    "style_class": "button",
+                    "custom_button_background": "{{ settings.color_palette.foreground }}",
+                    "custom_button_text": "{{ settings.color_palette.background }}",
+                    "custom_button_border": "{{ settings.color_palette.background }}"
+                  },
+                  "blocks": {}
+                },
+                "accelerated-checkout": {
+                  "type": "accelerated-checkout",
+                  "static": true,
+                  "settings": {},
+                  "blocks": {}
+                }
+              },
+              "block_order": []
+            },
+            "ena_trust": {
+              "type": "ena-trust-icons",
+              "settings": {
+                "label_1": "Envío gratis",
+                "label_2": "Devolución fácil",
+                "label_3": "Pago seguro",
+                "padding-block-start": 16,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "divider_upsell": {
+              "type": "_divider",
+              "name": "t:names.divider",
+              "settings": {
+                "thickness": 1,
+                "corner_radius": "square",
+                "divider_color": "#e6e6e6",
+                "width_percent": 100,
+                "padding-block-start": 6,
+                "padding-block-end": 4
+              },
+              "blocks": {}
+            },
+            "ena_upsell": {
+              "type": "ena-upsell",
+              "settings": {
+                "heading": "Sumá a tu rutina",
+                "product_1": "whey-protein",
+                "product_2": "shaker-ena-600ml",
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "ena_stories": {
+              "type": "ena-video-stories",
+              "settings": {
+                "heading": "Video feedbacks",
+                "link_text": "Ver todos (5)",
+                "name_1": "Lucía",
+                "asset_1": "ena-vf-1.png",
+                "name_2": "Dr. Antonio",
+                "asset_2": "ena-vf-4.png",
+                "name_3": "Sofía",
+                "asset_3": "ena-vf-2.png",
+                "name_4": "Caro",
+                "asset_4": "ena-vf-3.png",
+                "padding-block-start": 8,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "ena_club": {
+              "type": "ena-club",
+              "settings": {
+                "brand": "ENA CLUB",
+                "tooltip": "Con esta compra sumás 32.000 puntos para tu ENA Club. Acumulá puntos en cada pedido y canjealos por descuentos. Cuantas más compras, más ahorrás.",
+                "padding-block-start": 6,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "ena_badge",
+            "title",
+            "ena_rating",
+            "price",
+            "ena_chips",
+            "ena_countdown",
+            "descripcion",
+            "variant_picker",
+            "ena_mode",
+            "inventory",
+            "ena_qty_discount",
+            "buy_buttons",
+            "ena_trust",
+            "divider_upsell",
+            "ena_upsell",
+            "ena_stories",
+            "ena_club"
+          ]
+        }
+      },
+      "settings": {
+        "content_width": "content-center-aligned",
+        "desktop_media_position": "left",
+        "equal_columns": false,
+        "limit_details_width": false,
+        "gap": 48,
+        "enable_sticky_add_to_cart": false,
+        "background_color": "",
+        "padding-block-start": 24,
+        "padding-block-end": 48
+      }
+    },
+    "ena_details": {
+      "type": "section",
+      "blocks": {
+        "details_row": {
+          "type": "group",
+          "name": "Detalles",
+          "settings": {
+            "content_direction": "row",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "space-between",
+            "vertical_alignment": "flex-start",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-start",
+            "gap": 56,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "background_color": "",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "col_accordions": {
+              "type": "group",
+              "name": "Acordeones",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "flex-start",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "flex-start",
+                "gap": 0,
+                "width": "custom",
+                "custom_width": 46,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "accordion_main": {
+                  "type": "accordion",
+                  "settings": {
+                    "icon": "caret",
+                    "dividers": true,
+                    "divider_color": "#e6e6e6",
+                    "type_preset": "h6",
+                    "background_color": "",
+                    "text_color": "",
+                    "border": "none",
+                    "border_width": 1,
+                    "border_opacity": 100,
+                    "border_color": "",
+                    "border_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {
+                    "row_ingredientes": {
+                      "type": "_accordion-row",
+                      "settings": {
+                        "heading": "Ingredientes",
+                        "open_by_default": true,
+                        "icon": "none",
+                        "width": 20
+                      },
+                      "blocks": {
+                        "ing_text": {
+                          "type": "text",
+                          "name": "Contenido",
+                          "settings": {
+                            "text": "<p><strong>Creatina Monohidrato Micronizada</strong></p><p>Único ingrediente, 100% puro. Micronizada para máxima absorción y disolución. Aporta 5 g de creatina por porción. Sin TACC, libre de gluten.</p><p><a href=\"#\" title=\"Ver tabla nutricional\">Ver tabla nutricional →</a></p>",
+                            "width": "100%",
+                            "max_width": "normal",
+                            "alignment": "left",
+                            "type_preset": "rte",
+                            "font": "var(--font-body--family)",
+                            "font_size": "0.875rem",
+                            "line_height": "normal",
+                            "letter_spacing": "normal",
+                            "case": "none",
+                            "wrap": "pretty",
+                            "text_color": "",
+                            "background": false,
+                            "background_color": "#00000026",
+                            "corner_radius": 0,
+                            "padding-block-start": 0,
+                            "padding-block-end": 8,
+                            "padding-inline-start": 0,
+                            "padding-inline-end": 0
+                          },
+                          "blocks": {}
+                        }
+                      },
+                      "block_order": [
+                        "ing_text"
+                      ]
+                    },
+                    "row_modo": {
+                      "type": "_accordion-row",
+                      "settings": {
+                        "heading": "Modo de uso",
+                        "open_by_default": false,
+                        "icon": "none",
+                        "width": 20
+                      },
+                      "blocks": {
+                        "modo_text": {
+                          "type": "text",
+                          "name": "Contenido",
+                          "settings": {
+                            "text": "<p>Disolver un scoop (5 g) en 200 ml de agua o tu bebida preferida. Agitar y tomar. Un servicio por día, todos los días — incluso los de descanso.</p>",
+                            "width": "100%",
+                            "max_width": "normal",
+                            "alignment": "left",
+                            "type_preset": "rte",
+                            "font": "var(--font-body--family)",
+                            "font_size": "0.875rem",
+                            "line_height": "normal",
+                            "letter_spacing": "normal",
+                            "case": "none",
+                            "wrap": "pretty",
+                            "text_color": "",
+                            "background": false,
+                            "background_color": "#00000026",
+                            "corner_radius": 0,
+                            "padding-block-start": 0,
+                            "padding-block-end": 8,
+                            "padding-inline-start": 0,
+                            "padding-inline-end": 0
+                          },
+                          "blocks": {}
+                        }
+                      },
+                      "block_order": [
+                        "modo_text"
+                      ]
+                    },
+                    "row_traza": {
+                      "type": "_accordion-row",
+                      "settings": {
+                        "heading": "Trazabilidad",
+                        "open_by_default": false,
+                        "icon": "none",
+                        "width": 20
+                      },
+                      "blocks": {
+                        "traza_text": {
+                          "type": "text",
+                          "name": "Contenido",
+                          "settings": {
+                            "text": "<p>Materia prima importada con certificación de origen (Arla Foods) y elaboración nacional bajo normas ISO 9001 y registro FDA. Cada lote es trazable de punta a punta.</p>",
+                            "width": "100%",
+                            "max_width": "normal",
+                            "alignment": "left",
+                            "type_preset": "rte",
+                            "font": "var(--font-body--family)",
+                            "font_size": "0.875rem",
+                            "line_height": "normal",
+                            "letter_spacing": "normal",
+                            "case": "none",
+                            "wrap": "pretty",
+                            "text_color": "",
+                            "background": false,
+                            "background_color": "#00000026",
+                            "corner_radius": 0,
+                            "padding-block-start": 0,
+                            "padding-block-end": 8,
+                            "padding-inline-start": 0,
+                            "padding-inline-end": 0
+                          },
+                          "blocks": {}
+                        }
+                      },
+                      "block_order": [
+                        "traza_text"
+                      ]
+                    }
+                  },
+                  "block_order": [
+                    "row_ingredientes",
+                    "row_modo",
+                    "row_traza"
+                  ]
+                }
+              },
+              "block_order": [
+                "accordion_main"
+              ]
+            },
+            "col_benefits": {
+              "type": "group",
+              "name": "Beneficios",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "flex-start",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "flex-start",
+                "gap": 0,
+                "width": "custom",
+                "custom_width": 46,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "benefits_card": {
+                  "type": "ena-benefits-card",
+                  "settings": {
+                    "heading": "Lo que vas a sentir",
+                    "accent": "#1e5fa8",
+                    "icon_1": "fuerza",
+                    "title_1": "Más fuerza",
+                    "desc_1": "92% ganó fuerza y potencia",
+                    "pct_1": "92%",
+                    "icon_2": "recuperacion",
+                    "title_2": "Mejor recuperación",
+                    "desc_2": "88% recuperó más rápido",
+                    "pct_2": "88%",
+                    "icon_3": "energia",
+                    "title_3": "Más energía",
+                    "desc_3": "90% rindió más en cada entreno",
+                    "pct_3": "90%",
+                    "icon_4": "volumen",
+                    "title_4": "Más volumen muscular",
+                    "desc_4": "85% notó más masa magra",
+                    "pct_4": "85%",
+                    "animate": true,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "benefits_card"
+              ]
+            }
+          },
+          "block_order": [
+            "col_accordions",
+            "col_benefits"
+          ]
+        }
+      },
+      "block_order": [
+        "details_row"
+      ],
+      "name": "ENA · Detalles",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 0,
+        "section_width": "page-width",
+        "section_height": "adapt",
+        "section_height_custom": 50,
+        "background_media": "none",
+        "background_color": "",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_color": "",
+        "border_radius": 0,
+        "padding-block-start": 24,
+        "padding-block-end": 80
+      }
+    },
+    "ena_stats": {
+      "type": "section",
+      "blocks": {
+        "stats_divider": {
+          "type": "_divider",
+          "name": "t:names.divider",
+          "settings": {
+            "thickness": 1,
+            "corner_radius": "square",
+            "divider_color": "#e6e6e6",
+            "width_percent": 100,
+            "padding-block-start": 0,
+            "padding-block-end": 40
+          },
+          "blocks": {}
+        },
+        "stats_row": {
+          "type": "group",
+          "name": "Stats",
+          "settings": {
+            "content_direction": "row",
+            "vertical_on_mobile": false,
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 100,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "background_color": "",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "stat_1": {
+              "type": "ena-stat",
+              "settings": {
+                "number": "+1M",
+                "label": "CLIENTES SATISFECHOS",
+                "animate": true,
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "stat_2": {
+              "type": "ena-stat",
+              "settings": {
+                "number": "+100",
+                "label": "FORMULACIONES",
+                "animate": true,
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "stat_3": {
+              "type": "ena-stat",
+              "settings": {
+                "number": "4.8/5",
+                "label": "CALIFICACIÓN PROMEDIO",
+                "animate": true,
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "stat_1",
+            "stat_2",
+            "stat_3"
+          ]
+        }
+      },
+      "block_order": [
+        "stats_divider",
+        "stats_row"
+      ],
+      "name": "ENA · Stats",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 0,
+        "section_width": "page-width",
+        "section_height": "adapt",
+        "section_height_custom": 50,
+        "background_media": "none",
+        "background_color": "",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_color": "",
+        "border_radius": 0,
+        "padding-block-start": 16,
+        "padding-block-end": 56
+      }
+    },
+    "ena_ambassadors": {
+      "type": "ena-ambassadors",
+      "blocks": {
+        "amb_1": {
+          "type": "_ena-ambassador",
+          "settings": {
+            "name": "Facundo Arana",
+            "role": "Actor y Montañista",
+            "image": "shopify://shop_images/facundo_arana.webp",
+            "asset": "ena-amb-pumas.png"
+          },
+          "blocks": {}
+        },
+        "amb_2": {
+          "type": "_ena-ambassador",
+          "settings": {
+            "name": "Agustín Creevy",
+            "role": "Ex-Capitán de Los Pumas",
+            "image": "shopify://shop_images/agustin_creevy.webp",
+            "asset": "ena-amb-martin.png"
+          },
+          "blocks": {}
+        },
+        "amb_3": {
+          "type": "_ena-ambassador",
+          "settings": {
+            "name": "Pía Slapka",
+            "role": "Conductora y Runner",
+            "image": "shopify://shop_images/pia_slapka.webp",
+            "asset": "ena-amb-julieta.png"
+          },
+          "blocks": {}
+        },
+        "amb_4": {
+          "type": "_ena-ambassador",
+          "settings": {
+            "name": "Agustín Richelme",
+            "role": "Campeón de Crossfit",
+            "image": "shopify://shop_images/agustin_richelme.webp",
+            "asset": "ena-amb-andres.png"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "amb_1",
+        "amb_2",
+        "amb_3",
+        "amb_4"
+      ],
+      "name": "ENA · Ambassadors",
+      "settings": {
+        "kicker": "Respaldado por los mejores",
+        "heading": "Atletas. Clubes. Resultados.",
+        "subheading": "TODOS ENTRENAN CON ENA.",
+        "background": "#0a0a0a",
+        "animate": true,
+        "animation_style": "fade-up",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "section_en6C8r": {
+      "type": "section",
+      "blocks": {
+        "text_QwKxNt": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h2>Preguntas frecuentes</h2>",
+            "width": "fit-content",
+            "max_width": "narrow",
+            "alignment": "left",
+            "type_preset": "h3",
+            "font": "var(--font-body--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "text_color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "accordion_ndCAEY": {
+          "type": "accordion",
+          "name": "t:names.accordion",
+          "settings": {
+            "icon": "caret",
+            "dividers": true,
+            "divider_color": "",
+            "type_preset": "h5",
+            "background_color": "",
+            "text_color": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "accordion_row_h9q3rw": {
+              "type": "_accordion-row",
+              "settings": {
+                "heading": "¿Qué es la creatina monohidrato?",
+                "open_by_default": false,
+                "icon": "none",
+                "width": 20
+              },
+              "blocks": {
+                "text_eDAwhA": {
+                  "type": "text",
+                  "settings": {
+                    "text": "<p>La creatina es el suplemento con el mayor respaldo científico de la historia. Con más de 700 estudios publicados y el aval de la International Society of Sports Nutrition (ISSN), es hoy la única sustancia ergogénica con consenso unánime entre investigadores, médicos deportivos, nutricionistas y deportistas para mejorar el rendimiento físico y la salud cognitiva.</p>",
+                    "width": "100%",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_eDAwhA"
+              ]
+            },
+            "accordion_row_tNUwpH": {
+              "type": "_accordion-row",
+              "settings": {
+                "heading": "¿Qué hace exactamente la creatina?",
+                "open_by_default": false,
+                "icon": "none",
+                "width": 20
+              },
+              "blocks": {
+                "text_hMM8Uz": {
+                  "type": "text",
+                  "settings": {
+                    "text": "<p>La creatina es un compuesto que el organismo sintetiza de forma natural —principalmente en el hígado y los riñones— y almacena en el tejido muscular como fosfocreatina. Su función central es regenerar el ATP (la principal moneda energética de las células), lo que permite sostener esfuerzos de alta intensidad durante más tiempo y con mayor potencia.Pero los beneficios van mucho más allá del gimnasio.En los últimos años, la investigación ha demostrado que el cerebro también es un gran consumidor de creatina y que su suplementación mejora la memoria de trabajo, reduce la fatiga mental y protege la función cognitiva, especialmente en situaciones de privación de sueño o de estrés metabólico.</p>",
+                    "width": "100%",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_hMM8Uz"
+              ]
+            },
+            "accordion_row_43qbxG": {
+              "type": "_accordion-row",
+              "name": "t:names.accordion_row",
+              "settings": {
+                "heading": "¿Cuándo tomar creatina?",
+                "open_by_default": false,
+                "icon": "none",
+                "width": 20
+              },
+              "blocks": {
+                "text_CK7Q8h": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p>El momento de consumo no es determinante para los efectos a largo plazo. Sin embargo, algunos estudios sugieren que la ingesta cercana al entrenamiento (antes o después) puede optimizar ligeramente la absorción.</p><p>Pre-entreno: facilita la disponibilidad de fosfocreatina durante el esfuerzo.Post-entreno: algunos estudios muestran una ligera ventaja en combinación con carbohidratos y proteínas (que estimulan la insulina y favorecen el transporte de creatina al músculo).Días de descanso: tomarla a cualquier hora del día es suficiente. La consistencia diaria es más importante que el timing.</p>",
+                    "width": "100%",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_CK7Q8h"
+              ]
+            }
+          },
+          "block_order": [
+            "accordion_row_h9q3rw",
+            "accordion_row_tNUwpH",
+            "accordion_row_43qbxG"
+          ]
+        }
+      },
+      "block_order": [
+        "text_QwKxNt",
+        "accordion_ndCAEY"
+      ],
+      "name": "t:names.faq_section",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 32,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "background_media": "none",
+        "background_color": "",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_color": "",
+        "border_radius": 0,
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "ena_reviews": {
+      "type": "ena-reviews",
+      "blocks": {
+        "rev_1": {
+          "type": "_ena-review",
+          "settings": {
+            "name": "Martín G.",
+            "date": "hace 3 días",
+            "stars": 5,
+            "text": "Excelente creatina, se disuelve perfecto y en dos semanas noté más fuerza. La vuelvo a comprar seguro."
+          },
+          "blocks": {}
+        },
+        "rev_2": {
+          "type": "_ena-review",
+          "settings": {
+            "name": "Lucía R.",
+            "date": "hace 1 semana",
+            "stars": 5,
+            "text": "Sin sabor va justo con el jugo. La tomo todos los días y la recuperación se nota un montón."
+          },
+          "blocks": {}
+        },
+        "rev_3": {
+          "type": "_ena-review",
+          "settings": {
+            "name": "Diego P.",
+            "date": "hace 2 semanas",
+            "stars": 4,
+            "text": "Muy buena relación precio-calidad. El formato de 1 kg rinde muchísimo y la calidad es top."
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "rev_1",
+        "rev_2",
+        "rev_3"
+      ],
+      "name": "ENA · Reseñas",
+      "settings": {
+        "heading": "Reseñas de clientes",
+        "average": "4.8",
+        "total_text": "138 reseñas · 94% positivas",
+        "button_label": "Escribir reseña",
+        "bar_5": 82,
+        "bar_4": 12,
+        "bar_3": 3,
+        "bar_2": 2,
+        "bar_1": 1,
+        "animate": true,
+        "animation_style": "fade-up",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "product_recommendations_qggXJq": {
+      "type": "product-recommendations",
+      "blocks": {
+        "text_cbcgyb": {
+          "type": "text",
+          "name": "t:names.header",
+          "settings": {
+            "text": "<h2>Combiná con</h2>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h3",
+            "font": "var(--font-primary--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "text_color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 12,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "static-product-card": {
+          "type": "_product-card",
+          "name": "t:names.product_card",
+          "static": true,
+          "settings": {
+            "product_card_gap": 8,
+            "background_color": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 8,
+            "padding-block-start": 0,
+            "padding-block-end": 8,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "product_card_gallery_DNizbJ": {
+              "type": "_product-card-gallery",
+              "name": "t:names.product_card_media",
+              "settings": {
+                "image_ratio": "square",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 8,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "product_title_M7MJkb": {
+              "type": "product-title",
+              "name": "t:names.product_title",
+              "settings": {
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h6",
+                "font": "var(--font-accent--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "uppercase",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 8,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "price_gLWgA6": {
+              "type": "price",
+              "settings": {
+                "show_sale_price_first": true,
+                "show_installments": false,
+                "show_tax_info": false,
+                "type_preset": "h6",
+                "width": "100%",
+                "alignment": "left",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "text_color": "",
+                "padding-block-start": 4,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "product_card_gallery_DNizbJ",
+            "product_title_M7MJkb",
+            "price_gLWgA6"
+          ]
+        }
+      },
+      "block_order": [
+        "text_cbcgyb"
+      ],
+      "name": "t:names.product_recommendations",
+      "settings": {
+        "product": "{{ closest.product }}",
+        "recommendation_type": "related",
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "max_products": 4,
+        "columns": 4,
+        "mobile_columns": "2",
+        "columns_gap": 24,
+        "rows_gap": 24,
+        "icons_style": "arrow",
+        "icons_shape": "none",
+        "section_width": "page-width",
+        "gap": 28,
+        "background_color": "",
+        "padding-block-start": 48,
+        "padding-block-end": 72
+      }
+    },
+    "ena_sticky": {
+      "type": "ena-sticky-atc",
+      "settings": {
+        "cta_label": "Agregar al carrito",
+        "cta_label_subscribe": "Suscribirme",
+        "show_mode_toggle": true,
+        "subscribe_label": "Suscripción -25%",
+        "onetime_label": "Compra única",
+        "swatch_map": "Neutro:ena-swatch-mini-neutro.png\nFruit Punch:ena-swatch-mini-fruit-punch.png\nNaranja:ena-swatch-mini-naranja.png",
+        "gallery_exclude": ""
+      }
+    }
+  },
+  "order": [
+    "main",
+    "ena_details",
+    "ena_stats",
+    "ena_ambassadors",
+    "section_en6C8r",
+    "ena_reviews",
+    "product_recommendations_qggXJq",
+    "ena_sticky"
+  ]
+}

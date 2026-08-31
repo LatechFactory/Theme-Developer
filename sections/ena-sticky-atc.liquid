@@ -1,0 +1,359 @@
+{%- comment -%}
+  ENA sticky add-to-cart bar — fixed to the bottom of the viewport, appears when
+  the main buy-box CTA scrolls out of view. Selectors stay synced with the main
+  variant picker (ena-pdp.js drives both ways). The subscription toggle renders
+  only when selling plans exist (subscription app) — one-time is the default.
+{%- endcomment -%}
+
+{%- liquid
+  assign p = product
+  assign v = p.selected_or_first_available_variant
+-%}
+
+{%- if p != blank -%}
+<div
+  class="ena-satc"
+  data-ena-satc
+  hidden
+  {{ section.shopify_attributes }}
+>
+  <script type="application/json" data-ena-satc-config>
+    {
+      "variants": [
+        {%- for variant in p.variants -%}
+          {
+            "id": {{ variant.id }},
+            "option1": {{ variant.option1 | json }},
+            "option2": {{ variant.option2 | json }},
+            "price": {{ variant.price }},
+            "compare": {{ variant.compare_at_price | default: 0 }},
+            "available": {{ variant.available }}
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ],
+      "options": {{ p.options | json }},
+      "galleryExclude": {{ section.settings.gallery_exclude | json }},
+      "swatches": {
+        {%- assign lines = section.settings.swatch_map | newline_to_br | split: '<br />' -%}
+        {%- for line in lines -%}
+          {%- assign parts = line | strip | split: ':' -%}
+          {%- if parts.size == 2 -%}
+            {{ parts[0] | strip | json }}: {{ parts[1] | strip | asset_url | json }}{% unless forloop.last %},{% endunless %}
+          {%- endif -%}
+        {%- endfor -%}
+      }
+    }
+  </script>
+
+  <div class="ena-satc__inner">
+    <div class="ena-satc__product">
+      {%- if p.featured_image -%}
+        <img
+          src="{{ p.featured_image | image_url: width: 120 }}"
+          alt="{{ p.title | escape }}"
+          class="ena-satc__thumb"
+          width="48"
+          height="48"
+          loading="lazy"
+        >
+      {%- endif -%}
+      <div class="ena-satc__meta">
+        <span class="ena-satc__title">{{ p.title }}</span>
+        <span class="ena-satc__selects">
+          {%- for option in p.options_with_values -%}
+            <span class="ena-satc__select-wrap" data-option-index="{{ forloop.index }}">
+              {%- if forloop.index == 1 -%}<span class="ena-satc__swatch" data-ena-satc-swatch></span>{%- endif -%}
+              <select data-ena-satc-option="{{ forloop.index }}" aria-label="{{ option.name | escape }}">
+                {%- for value in option.values -%}
+                  <option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value }}</option>
+                {%- endfor -%}
+              </select>
+            </span>
+          {%- endfor -%}
+        </span>
+      </div>
+    </div>
+
+    {%- if p.selling_plan_groups.size > 0 or section.settings.show_mode_toggle -%}
+      <div class="ena-satc__mode" data-ena-satc-mode>
+        <button type="button" data-mode="subscribe" class="is-active">{{ section.settings.subscribe_label }}</button>
+        <button type="button" data-mode="onetime">{{ section.settings.onetime_label }}</button>
+      </div>
+    {%- endif -%}
+
+    <div class="ena-satc__buy">
+      <span class="ena-satc__price" data-ena-satc-price>{{ v.price | money | split: ',' | first }}</span>
+      <button
+        type="button"
+        class="ena-satc__cta"
+        data-ena-satc-add
+        data-label-onetime="{{ section.settings.cta_label | escape }}"
+        data-label-subscribe="{{ section.settings.cta_label_subscribe | escape }}"
+      >
+        {{ section.settings.cta_label }}
+      </button>
+    </div>
+  </div>
+</div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ena-satc {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: #fff;
+    border-top: 1px solid var(--ena-border);
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.07);
+    transform: translateY(0);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+  .ena-satc[hidden] {
+    display: block;
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ena-satc__inner {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 12px var(--ena-gutter);
+  }
+  .ena-satc__product {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1;
+  }
+  .ena-satc__thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid var(--ena-border);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .ena-satc__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .ena-satc__title {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 14.5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--ena-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ena-satc__selects {
+    display: flex;
+    gap: 8px;
+  }
+  .ena-satc__select-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--ena-border);
+    border-radius: 999px;
+    padding: 0 6px 0 10px;
+    background: #fff;
+  }
+  .ena-satc__swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    flex-shrink: 0;
+  }
+  .ena-satc__select-wrap select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    background: transparent url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23111' fill='none' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 6px center;
+    padding: 7px 22px 7px 4px;
+    font-family: var(--font-body--family);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ena-ink);
+    cursor: pointer;
+  }
+  .ena-satc__mode {
+    display: flex;
+    background: var(--ena-surface);
+    border-radius: 999px;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+  .ena-satc__mode button {
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-family: var(--font-body--family);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ena-muted);
+    cursor: pointer;
+  }
+  .ena-satc__mode button.is-active {
+    background: var(--ena-ink);
+    color: #fff;
+    font-weight: 600;
+  }
+  .ena-satc__buy {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-shrink: 0;
+  }
+  .ena-satc__price {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ena-ink);
+    white-space: nowrap;
+  }
+  .ena-satc__cta {
+    background: var(--ena-ink);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 34px;
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 13.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .ena-satc__cta:hover {
+    opacity: 0.88;
+  }
+  .ena-satc__cta.is-added {
+    background: #2e7d32;
+  }
+  @media screen and (max-width: 749px) {
+    .ena-satc__inner {
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 16px;
+    }
+    .ena-satc__product {
+      flex-basis: 100%;
+    }
+    .ena-satc__mode {
+      display: none;
+    }
+    .ena-satc__thumb {
+      display: none;
+    }
+    .ena-satc__title {
+      display: none;
+    }
+    /* Row 1: meta must fill the product row so the dropdowns can split 50/50 */
+    .ena-satc__product {
+      flex-basis: 100%;
+      gap: 0;
+    }
+    .ena-satc__meta {
+      flex: 1;
+      width: 100%;
+    }
+    .ena-satc__selects {
+      width: 100%;
+      gap: 10px;
+    }
+    .ena-satc__select-wrap {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .ena-satc__select-wrap select {
+      width: 100%;
+      min-width: 0;
+    }
+    /* Row 2: full-width CTA with the price baked into the label */
+    .ena-satc__buy {
+      flex-basis: 100%;
+      flex: 1 0 100%;
+    }
+    .ena-satc__price {
+      display: none;
+    }
+    .ena-satc__cta {
+      width: 100%;
+      padding: 15px 20px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Barra sticky ATC",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Texto botón",
+      "default": "Agregar al carrito"
+    },
+    {
+      "type": "text",
+      "id": "cta_label_subscribe",
+      "label": "Texto botón (suscripción)",
+      "default": "Suscribirme"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mode_toggle",
+      "label": "Mostrar toggle Suscripción / Compra única",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "subscribe_label",
+      "label": "Etiqueta suscripción",
+      "default": "Suscripción -25%"
+    },
+    {
+      "type": "text",
+      "id": "onetime_label",
+      "label": "Etiqueta compra única",
+      "default": "Compra única"
+    },
+    {
+      "type": "textarea",
+      "id": "swatch_map",
+      "label": "Swatches por sabor (valor:asset por línea)",
+      "default": "Neutro:ena-swatch-mini-neutro.png\nFruit Punch:ena-swatch-mini-fruit-punch.png\nNaranja:ena-swatch-mini-naranja.png"
+    },
+    {
+      "type": "text",
+      "id": "gallery_exclude",
+      "label": "Ocultar de la galería (patrón de archivo)",
+      "info": "Opcional. Las imágenes de producto cuyo archivo contenga este texto no se muestran en la galería apilada. Dejar vacío para que el packshot por variante aparezca como imagen destacada (cambia con sabor/tamaño)."
+    }
+  ],
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "presets": [
+    {
+      "name": "ENA · Barra sticky ATC"
+    }
+  ]
+}
+{% endschema %}

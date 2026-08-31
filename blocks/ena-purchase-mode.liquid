@@ -1,0 +1,337 @@
+{%- comment -%}
+  Subscribe & Save — purchase-mode selector.
+  - With selling plans (subscription app installed): renders the REAL plans;
+    selecting "Suscribite" adds a selling_plan input to the product form.
+  - Without plans + demo mode ON: renders the designed subscription card with
+    computed demo pricing (checkout still adds a one-time item — the discount
+    becomes real once the app creates selling plans).
+  - Suscripción is the pre-selected default when it renders; Compra única
+    is the default only when there is no subscribe option.
+  Prices/labels re-sync per variant + mode in ena-pdp.js.
+{%- endcomment -%}
+
+{%- liquid
+  assign product_resource = closest.product
+  assign v = product_resource.selected_or_first_available_variant
+  assign group = product_resource.selling_plan_groups | first
+  assign show_subscribe = false
+  assign pct = block.settings.demo_discount
+
+  if group
+    assign show_subscribe = true
+    assign allocation = v.selling_plan_allocations | first
+    assign sub_price = allocation.price | default: v.price
+    if v.price > 0 and sub_price < v.price
+      assign pct_diff = v.price | minus: sub_price
+      assign pct = pct_diff | times: 100.0 | divided_by: v.price | round
+    endif
+  elsif block.settings.demo_mode
+    assign show_subscribe = true
+    assign discount = v.price | times: pct | divided_by: 100
+    assign sub_price = v.price | minus: discount
+  endif
+-%}
+
+<div
+  class="ena-mode spacing-style"
+  style="{% render 'spacing-style', settings: block.settings %}"
+  data-ena-mode
+  data-demo="{% if group %}false{% else %}true{% endif %}"
+  data-pct="{{ pct }}"
+  {{ block.shopify_attributes }}
+>
+  <p class="ena-caption ena-mode__heading">{{ block.settings.heading }}</p>
+
+  {%- if show_subscribe -%}
+    <label class="ena-mode__card ena-mode__card--subscribe is-selected" data-ena-mode-option="subscribe">
+      <span class="ena-mode__radio-row">
+        <input type="radio" name="ena-mode-{{ block.id }}" value="subscribe" checked>
+        <span class="ena-mode__check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="9.2"/><path d="M8 12.4l2.8 2.8L16.4 9.6"/></svg>
+        </span>
+        <span class="ena-mode__title">{{ block.settings.subscribe_title }}</span>
+        {%- if pct > 0 -%}<span class="ena-mode__off">{{ pct }}% OFF</span>{%- endif -%}
+      </span>
+      <span class="ena-mode__price-row">
+        <strong class="ena-mode__price" data-ena-sub-price>{{ sub_price | money | split: ',' | first }}</strong>
+        <span class="ena-mode__per">/entrega</span>
+        <s class="ena-compare" data-ena-sub-compare>{{ v.price | money | split: ',' | first }}</s>
+      </span>
+      <span class="ena-mode__value" data-ena-sub-value></span>
+      <span class="ena-mode__freq">
+        <svg class="ena-mode__freq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="16" height="16"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.6h17M8 2.8v4M16 2.8v4"/></svg>
+        <select data-ena-frequency aria-label="Frecuencia de entrega">
+          {%- if group -%}
+            {%- for plan in group.selling_plans -%}
+              <option value="{{ plan.id }}"{% if forloop.index == 2 %} selected{% endif %}>{{ plan.name }}</option>
+            {%- endfor -%}
+          {%- else -%}
+            {%- assign freqs = block.settings.demo_frequencies | newline_to_br | split: '<br />' -%}
+            {%- for f in freqs -%}
+              <option value="demo-{{ forloop.index }}"{% if forloop.index == 2 %} selected{% endif %}>{{ f | strip }}</option>
+            {%- endfor -%}
+          {%- endif -%}
+        </select>
+      </span>
+      <span class="ena-mode__benefits">
+        {%- assign benefits = block.settings.benefits | newline_to_br | split: '<br />' -%}
+        {%- for b in benefits -%}
+          <span class="ena-mode__benefit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13"><path d="M4 12.5l5.2 5L20 6.5"/></svg>
+            {{ b | strip }}
+          </span>
+        {%- endfor -%}
+      </span>
+    </label>
+  {%- endif -%}
+
+  <label class="ena-mode__card ena-mode__card--onetime{% unless show_subscribe %} is-selected{% endunless %}" data-ena-mode-option="onetime">
+    <span class="ena-mode__radio-row">
+      <input type="radio" name="ena-mode-{{ block.id }}" value="onetime"{% unless show_subscribe %} checked{% endunless %}>
+      <span class="ena-mode__check" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="9.2"/><path d="M8 12.4l2.8 2.8L16.4 9.6"/></svg>
+      </span>
+      <span class="ena-mode__title">{{ block.settings.onetime_title }}</span>
+    </span>
+    <strong class="ena-mode__price ena-mode__price--right" data-ena-onetime-price>{{ v.price | money | split: ',' | first }}</strong>
+  </label>
+</div>
+
+{% stylesheet %}
+  .ena-mode__heading {
+    margin: 0 0 12px;
+  }
+  .ena-mode__card {
+    /* Horizon styles <label> as inline-flex row — force the card stack */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100%;
+    border: 1px solid var(--ena-border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    background: #fff;
+  }
+  .ena-mode__card--subscribe {
+    background: #f7f7f7;
+  }
+  .ena-mode__card.is-selected {
+    border: 2px solid var(--ena-ink);
+    padding: 19px;
+  }
+  .ena-mode__card input[type='radio'] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border: 1.5px solid var(--ena-border);
+    border-radius: 50%;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .ena-mode__card.is-selected input[type='radio'] {
+    display: none;
+  }
+  .ena-mode__card:not(.is-selected) .ena-mode__check {
+    display: none;
+  }
+  .ena-mode__check {
+    display: inline-flex;
+    color: var(--ena-ink);
+    flex-shrink: 0;
+  }
+  .ena-mode__radio-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ena-mode__card--onetime {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between;
+    gap: 10px;
+    padding-block: 17px;
+  }
+  .ena-mode__card--onetime.is-selected {
+    padding-block: 16px;
+  }
+  .ena-mode__title {
+    font-family: var(--font-body--family);
+    font-weight: 600;
+    font-size: 16.5px;
+    color: var(--ena-ink);
+  }
+  .ena-mode__off {
+    margin-left: auto;
+    background: var(--ena-ink);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+  .ena-mode__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 16px 0 0;
+  }
+  .ena-mode__price {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--ena-ink);
+  }
+  .ena-mode__price--right {
+    font-size: 17px;
+    margin: 0;
+  }
+  .ena-mode__per {
+    font-size: 14px;
+    color: var(--ena-muted);
+  }
+  .ena-mode__price-row .ena-compare {
+    font-size: 15px;
+  }
+  .ena-mode__value {
+    display: block;
+    font-size: 13px;
+    color: var(--ena-muted);
+    margin: 10px 0 0;
+    min-height: 1em;
+  }
+  .ena-mode__freq {
+    position: relative;
+    display: block;
+    margin: 14px 0 0;
+  }
+  .ena-mode__freq-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ena-ink);
+    pointer-events: none;
+  }
+  .ena-mode__freq select {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 14px 38px 14px 40px;
+    border: 1px solid var(--ena-border);
+    border-radius: 8px;
+    font-family: var(--font-body--family);
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ena-ink);
+    background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236E6E6E' fill='none' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 15px center;
+    cursor: pointer;
+  }
+  .ena-mode__benefits {
+    display: block;
+    margin-top: 14px;
+  }
+  .ena-mode__benefit {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13.5px;
+    color: var(--ena-muted);
+    padding: 4px 0;
+  }
+  .ena-mode__benefit svg {
+    color: var(--ena-ink);
+    flex-shrink: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Modo de compra",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Con una app de suscripciones (Recharge/Loop/Appstle) la card usa los planes reales. Sin app, el modo demo muestra la card diseñada con precios calculados — el checkout sigue siendo compra única hasta instalar la app."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Elegí cómo comprarlo"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_title",
+      "label": "Título suscripción",
+      "default": "Suscribite y ahorrá"
+    },
+    {
+      "type": "text",
+      "id": "onetime_title",
+      "label": "Título compra única",
+      "default": "Compra única"
+    },
+    {
+      "type": "checkbox",
+      "id": "demo_mode",
+      "label": "Mostrar card de suscripción sin app (demo)",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "demo_discount",
+      "label": "Descuento suscripción",
+      "min": 5,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "default": 25,
+      "visible_if": "{{ block.settings.demo_mode }}"
+    },
+    {
+      "type": "textarea",
+      "id": "demo_frequencies",
+      "label": "Frecuencias (una por línea)",
+      "default": "Entrega cada 1 mes\nEntrega cada 2 meses\nEntrega cada 3 meses",
+      "visible_if": "{{ block.settings.demo_mode }}"
+    },
+    {
+      "type": "textarea",
+      "id": "benefits",
+      "label": "Beneficios (uno por línea)",
+      "default": "25% de descuento en cada envío\nEnvío siempre gratis\nCancelá o pausá cuando quieras"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Modo de compra",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,97 @@
+{%- comment -%}
+  Placeholder rating row — replace with the review app's block (Judge.me / Loox /
+  Shopify Reviews) once installed. Content is static settings until then.
+{%- endcomment -%}
+
+<button
+  type="button"
+  class="ena-rating spacing-style"
+  style="{% render 'spacing-style', settings: block.settings %}"
+  data-ena-rating
+  aria-label="Ver reseñas de clientes"
+  {{ block.shopify_attributes }}
+>
+  <span class="ena-stars" aria-hidden="true">
+    {%- for i in (1..5) -%}
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"/></svg>
+    {%- endfor -%}
+  </span>
+  <span class="ena-rating__text">{{ block.settings.text }}</span>
+</button>
+
+{% stylesheet %}
+  .ena-rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* reset button chrome — behaves as an inline text+stars link */
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
+  }
+  .ena-rating__text {
+    font-family: var(--font-body--family);
+    font-size: 14px;
+    color: var(--ena-text-secondary);
+    /* persistent underline signals it's a link (ticket 22) */
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgb(110 110 110 / 0.5);
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+  .ena-rating:hover .ena-rating__text {
+    color: var(--ena-ink);
+    text-decoration-color: var(--ena-ink);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Rating",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Placeholder — reemplazar por el bloque de la app de reseñas (Judge.me/Loox) cuando esté instalada."
+    },
+    {
+      "type": "text",
+      "id": "text",
+      "label": "Texto",
+      "default": "138 reseñas · 94% positivas"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Rating",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

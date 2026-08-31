@@ -1,0 +1,48 @@
+/* ==========================================================================
+   Scroll-reveal animations  (copy into theme/assets/, pair with reveal.js)
+   --------------------------------------------------------------------------
+   Elements marked [data-reveal] enter on scroll. Variants:
+   (default = fade-up), fade, fade-down, fade-left, fade-right, zoom.
+
+   No-flash + fail-safe design:
+   - Hidden state ONLY applies under html.reveal-ready, added by an inline <head>
+     script in theme.liquid. JS off / global setting off = class absent = content
+     always visible. A 2s failsafe in that script strips the class if reveal.js
+     never runs, so content is never stuck hidden.
+   - The whole hidden block sits under prefers-reduced-motion: no-preference, so
+     reduced-motion visitors never get a hidden state at all.
+   - A section whose toggle is off gets .reveal-off on its root, which force-reveals
+     every descendant [data-reveal] — this also governs block-grid cards.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  /* Variants (base = fade-up). */
+  .reveal-ready [data-reveal='fade'] { transform: none; }
+  .reveal-ready [data-reveal='fade-down'] { transform: translateY(-28px); }
+  .reveal-ready [data-reveal='fade-left'] { transform: translateX(28px); }   /* enters from the right */
+  .reveal-ready [data-reveal='fade-right'] { transform: translateX(-28px); } /* enters from the left  */
+  .reveal-ready [data-reveal='zoom'] { transform: scale(0.94); }
+
+  /* Revealed — applied by reveal.js when the element scrolls into view. */
+  .reveal-ready [data-reveal].reveal-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Per-section / global disable — force everything visible, no transition. */
+  .reveal-ready .reveal-off [data-reveal],
+  .reveal-ready [data-reveal].reveal-off {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

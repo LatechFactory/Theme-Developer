@@ -1,0 +1,173 @@
+{%- comment -%}
+  Video feedbacks — Instagram-stories style circles. Placeholder content from theme
+  assets; a video-review app (Videowise/Loox/Reeview) replaces this block later.
+  Images: picker wins; otherwise the named theme asset renders.
+{%- endcomment -%}
+
+<div class="ena-stories spacing-style" style="{% render 'spacing-style', settings: block.settings %}" {{ block.shopify_attributes }}>
+  <div class="ena-stories__head">
+    <p class="ena-stories__heading ena-title">{{ block.settings.heading }}</p>
+    {%- if block.settings.link_text != blank -%}
+      <span class="ena-stories__link">{{ block.settings.link_text }}</span>
+    {%- endif -%}
+  </div>
+  <div class="ena-stories__row">
+    {%- for i in (1..4) -%}
+      {%- liquid
+        assign name_key = 'name_' | append: i
+        assign img_key = 'image_' | append: i
+        assign asset_key = 'asset_' | append: i
+        assign story_name = block.settings[name_key]
+        assign story_img = block.settings[img_key]
+        assign story_asset = block.settings[asset_key]
+      -%}
+      {%- if story_name != blank -%}
+        <button type="button" class="ena-stories__item" data-ena-story aria-label="Ver video de {{ story_name | escape }}">
+          <span class="ena-stories__ring">
+            {%- if story_img != blank -%}
+              {{ story_img | image_url: width: 160 | image_tag: loading: 'lazy', alt: story_name, class: 'ena-stories__img' }}
+            {%- elsif story_asset != blank -%}
+              <img src="{{ story_asset | asset_url }}" alt="{{ story_name | escape }}" class="ena-stories__img" loading="lazy" width="72" height="72">
+            {%- endif -%}
+            <span class="ena-stories__play">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M8 5.5v13l10.5-6.5L8 5.5z"/></svg>
+            </span>
+          </span>
+          <span class="ena-stories__name">{{ story_name }}</span>
+        </button>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .ena-stories__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .ena-stories__heading {
+    font-size: 17px;
+    margin: 0;
+  }
+  .ena-stories__link {
+    font-size: 13px;
+    color: var(--ena-muted);
+  }
+  .ena-stories__row {
+    display: flex;
+    gap: 22px;
+  }
+  .ena-stories__item {
+    background: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .ena-stories__ring {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    padding: 3px;
+    border: 2px solid var(--ena-ink);
+    display: block;
+  }
+  .ena-stories__img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+  .ena-stories__play {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--ena-border);
+    display: grid;
+    place-items: center;
+    color: var(--ena-ink);
+  }
+  .ena-stories__name {
+    font-family: var(--font-body--family);
+    font-size: 12.5px;
+    color: var(--ena-text-secondary);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Video feedbacks",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Placeholder — una app de video reviews (Videowise/Loox) reemplaza este bloque con videos reales."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Video feedbacks"
+    },
+    {
+      "type": "text",
+      "id": "link_text",
+      "label": "Link derecho",
+      "default": "Ver todos (5)"
+    },
+    { "type": "header", "content": "Historia 1" },
+    { "type": "text", "id": "name_1", "label": "Nombre", "default": "Lucía" },
+    { "type": "image_picker", "id": "image_1", "label": "Foto" },
+    { "type": "text", "id": "asset_1", "label": "Asset fallback", "default": "ena-vf-1.png" },
+    { "type": "header", "content": "Historia 2" },
+    { "type": "text", "id": "name_2", "label": "Nombre", "default": "Dr. Antonio" },
+    { "type": "image_picker", "id": "image_2", "label": "Foto" },
+    { "type": "text", "id": "asset_2", "label": "Asset fallback", "default": "ena-vf-4.png" },
+    { "type": "header", "content": "Historia 3" },
+    { "type": "text", "id": "name_3", "label": "Nombre", "default": "Sofía" },
+    { "type": "image_picker", "id": "image_3", "label": "Foto" },
+    { "type": "text", "id": "asset_3", "label": "Asset fallback", "default": "ena-vf-2.png" },
+    { "type": "header", "content": "Historia 4" },
+    { "type": "text", "id": "name_4", "label": "Nombre", "default": "Caro" },
+    { "type": "image_picker", "id": "image_4", "label": "Foto" },
+    { "type": "text", "id": "asset_4", "label": "Asset fallback", "default": "ena-vf-3.png" },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Video feedbacks",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

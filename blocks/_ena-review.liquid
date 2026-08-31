@@ -1,0 +1,60 @@
+<div class="ena-rev__card" data-reveal="fade-up" {{ block.shopify_attributes }}>
+  <div class="ena-rev__head">
+    <span class="ena-rev__avatar">{{ block.settings.name | slice: 0 }}</span>
+    <span class="ena-rev__who">
+      <strong>{{ block.settings.name }}</strong>
+      <small>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="9.2"/><path d="M8 12.4l2.8 2.8L16.4 9.6"/></svg>
+        Compra verificada
+      </small>
+    </span>
+    <span class="ena-rev__date">{{ block.settings.date }}</span>
+  </div>
+  <span class="ena-stars" aria-label="{{ block.settings.stars }} de 5 estrellas">
+    {%- for i in (1..5) -%}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"{% if i > block.settings.stars %} style="opacity:.3"{% endif %}><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z" stroke-linejoin="round"/></svg>
+    {%- endfor -%}
+  </span>
+  <p class="ena-rev__text">{{ block.settings.text }}</p>
+</div>
+
+{% schema %}
+{
+  "name": "ENA · Reseña",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "name",
+      "label": "Nombre",
+      "default": "Martín G."
+    },
+    {
+      "type": "text",
+      "id": "date",
+      "label": "Fecha",
+      "default": "hace 3 días"
+    },
+    {
+      "type": "range",
+      "id": "stars",
+      "label": "Estrellas",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "default": "Excelente creatina, se disuelve perfecto y en dos semanas noté más fuerza."
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Reseña"
+    }
+  ]
+}
+{% endschema %}

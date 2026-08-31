@@ -1,0 +1,104 @@
+{%- comment -%}
+  Urgency countdown with a REAL end date (no evergreen reset — see PDP spec).
+  Hidden entirely when the date is blank or already past (handled in ena-pdp.js).
+{%- endcomment -%}
+
+{%- if block.settings.end_date != blank -%}
+  <div
+    class="ena-countdown spacing-style"
+    style="{% render 'spacing-style', settings: block.settings %}"
+    data-ena-countdown="{{ block.settings.end_date | escape }}"
+    hidden
+    {{ block.shopify_attributes }}
+  >
+    <span class="ena-countdown__label">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><circle cx="12" cy="13" r="8.2"/><path d="M12 9v4.4l2.8 1.6M9.5 2.5h5"/></svg>
+      {{ block.settings.label }}
+    </span>
+    <span class="ena-countdown__time" data-ena-countdown-time>--&nbsp;:&nbsp;--&nbsp;:&nbsp;--</span>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ena-countdown {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--ena-brand-tint);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .ena-countdown__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-body--family);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ena-ink);
+  }
+  .ena-countdown__label svg {
+    color: var(--ena-brand);
+    flex-shrink: 0;
+  }
+  .ena-countdown__time {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: 1px;
+    color: var(--ena-brand);
+    white-space: nowrap;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Contador de oferta",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Usar una fecha-fin REAL de promo. Si está vacía o ya pasó, el contador no se muestra."
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Texto",
+      "default": "¡Apurate! La oferta termina en"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "Fecha fin (YYYY-MM-DDTHH:MM:SS-03:00)",
+      "info": "Ej: 2026-07-31T23:59:59-03:00"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Contador de oferta",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

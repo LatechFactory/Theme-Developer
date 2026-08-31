@@ -1,0 +1,97 @@
+<div
+  class="ena-stat spacing-style{% unless block.settings.animate %} reveal-off{% endunless %}"
+  style="{% render 'spacing-style', settings: block.settings %}"
+  data-reveal="fade-up"
+  {{ block.shopify_attributes }}
+>
+  <span class="ena-stat__number">{{ block.settings.number }}</span>
+  <span class="ena-stat__label">{{ block.settings.label }}</span>
+</div>
+
+{% stylesheet %}
+  .ena-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+    padding-inline: 16px;
+  }
+  .ena-stat__number {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--ena-ink);
+  }
+  .ena-stat__label {
+    font-family: var(--font-body--family);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ena-muted);
+  }
+  @media screen and (max-width: 749px) {
+    .ena-stat__number {
+      font-size: 36px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Stat",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "number",
+      "label": "Número",
+      "default": "+100"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Etiqueta",
+      "default": "FORMULACIONES"
+    },
+    {
+      "type": "header",
+      "content": "Animation"
+    },
+    {
+      "type": "checkbox",
+      "id": "animate",
+      "label": "Enable scroll animation",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Stat",
+      "category": "t:categories.basic"
+    }
+  ]
+}
+{% endschema %}

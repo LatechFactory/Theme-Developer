@@ -1,0 +1,173 @@
+{%- comment -%}
+  ENA Club loyalty banner — points mirror the purchase amount (dynamic per variant).
+  Replace with the loyalty app block (Smile/LoyaltyLion) once installed.
+{%- endcomment -%}
+
+{%- liquid
+  assign v = closest.product.selected_or_first_available_variant
+  assign points = v.price | money | split: ',' | first | remove: '$' | strip
+-%}
+
+<div class="ena-club spacing-style" style="{% render 'spacing-style', settings: block.settings %}" {{ block.shopify_attributes }}>
+  <span class="ena-club__brand">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9L12 2.6z"/></svg>
+    {{ block.settings.brand }}
+  </span>
+  <span class="ena-club__divider" aria-hidden="true"></span>
+  <span class="ena-club__text">Sumás <strong>{{ points }} puntos</strong> con esta compra</span>
+  <span class="ena-club__info-wrap" data-ena-club-info>
+    <button type="button" class="ena-club__info" aria-label="Más información sobre ENA Club" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="18" height="18"><circle cx="12" cy="12" r="9.2"/><path d="M12 11v5.2M12 7.6h.01" stroke-linecap="round"/></svg>
+    </button>
+    <span class="ena-club__tooltip" role="tooltip">{{ block.settings.tooltip }}</span>
+  </span>
+</div>
+
+{% stylesheet %}
+  .ena-club {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--ena-dark);
+    color: #fff;
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  .ena-club__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .ena-club__brand svg {
+    color: var(--ena-gold);
+  }
+  .ena-club__divider {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(255, 255, 255, 0.25);
+  }
+  .ena-club__text {
+    font-family: var(--font-body--family);
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .ena-club__text strong {
+    color: #fff;
+  }
+  /* Info tooltip */
+  .ena-club__info-wrap {
+    position: relative;
+    margin-left: auto;
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .ena-club__info {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    background: none;
+    padding: 0;
+    display: inline-flex;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .ena-club__info:hover,
+  .ena-club__info[aria-expanded='true'] {
+    color: #fff;
+  }
+  .ena-club__tooltip {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    right: -8px;
+    width: 260px;
+    max-width: 78vw;
+    background: #fff;
+    color: var(--ena-text-secondary);
+    font-family: var(--font-body--family);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+    padding: 14px 16px;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(4px);
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+    z-index: 20;
+  }
+  /* little pointer */
+  .ena-club__tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 16px;
+    border: 7px solid transparent;
+    border-top-color: #fff;
+  }
+  /* Desktop: hover/focus. Both: JS opens via [aria-expanded] on the wrapper */
+  .ena-club__info-wrap:hover .ena-club__tooltip,
+  .ena-club__info:focus-visible + .ena-club__tooltip,
+  .ena-club__info-wrap.is-open .ena-club__tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Club puntos",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Placeholder — los puntos reales vendrán de la app de loyalty (Smile/LoyaltyLion)."
+    },
+    {
+      "type": "text",
+      "id": "brand",
+      "label": "Marca",
+      "default": "ENA CLUB"
+    },
+    {
+      "type": "textarea",
+      "id": "tooltip",
+      "label": "Texto del tooltip (info)",
+      "default": "Con esta compra sumás 32.000 puntos para tu ENA Club. Acumulá puntos en cada pedido y canjealos por descuentos. Cuantas más compras, más ahorrás."
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Club puntos",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,340 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "footer",
+  "name": "t:names.footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "col_brand": {
+          "type": "group",
+          "name": "Brand",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "flex-start",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-start",
+            "gap": 20,
+            "width": "fill",
+            "custom_width": 32,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "brand_logo": {
+              "type": "logo",
+              "settings": {
+                "inverse": false,
+                "unit": "pixel",
+                "pixel_height": 48,
+                "custom_mobile_size": false,
+                "padding-block-start": 0,
+                "padding-block-end": 0
+              },
+              "blocks": {}
+            },
+            "brand_text": {
+              "type": "text",
+              "name": "Mission",
+              "settings": {
+                "text": "<p>ENA acompaña el crecimiento de los atletas en todas las etapas de su vida deportiva. Más de 100 formulaciones desarrolladas en Argentina.</p>",
+                "width": "100%",
+                "max_width": "narrow",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "0.875rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "brand_social": {
+              "type": "social-links",
+              "settings": {
+                "instagram_url": "https://www.instagram.com/ena.sport",
+                "facebook_url": "https://www.facebook.com/enasport",
+                "youtube_url": "https://www.youtube.com/@enasport"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "brand_logo",
+            "brand_text",
+            "brand_social"
+          ]
+        },
+        "col_productos": {
+          "type": "text",
+          "name": "Productos",
+          "settings": {
+            "text": "<h6>Productos</h6><p><a href=\"/\" title=\"Proteínas\">Proteínas</a><br/><a href=\"/\" title=\"Aminoácidos\">Aminoácidos</a><br/><a href=\"/\" title=\"Energía\">Energía &amp; Pre-entreno</a><br/><a href=\"/products/creatina-monohidrato\" title=\"Creatina\">Creatina</a><br/><a href=\"/\" title=\"Salud\">Salud &amp; Bienestar</a></p>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "line_height": "loose",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "col_empresa": {
+          "type": "text",
+          "name": "Empresa",
+          "settings": {
+            "text": "<h6>Empresa</h6><p><a href=\"/\" title=\"Sobre ENA\">Sobre ENA</a><br/><a href=\"/\" title=\"Atletas ENA\">Atletas ENA</a><br/><a href=\"/\" title=\"Trazabilidad\">Trazabilidad</a><br/><a href=\"/\" title=\"Trabajá con nosotros\">Trabajá con nosotros</a></p>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "line_height": "loose",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "col_ayuda": {
+          "type": "text",
+          "name": "Ayuda",
+          "settings": {
+            "text": "<h6>Ayuda</h6><p><a href=\"/\" title=\"Contacto\">Contacto</a><br/><a href=\"/\" title=\"Envíos\">Envíos y entregas</a><br/><a href=\"/\" title=\"Cambios\">Cambios y devoluciones</a><br/><a href=\"/\" title=\"Preguntas frecuentes\">Preguntas frecuentes</a></p>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "line_height": "loose",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "col_brand",
+        "col_productos",
+        "col_empresa",
+        "col_ayuda"
+      ],
+      "name": "t:names.footer",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 8,
+        "background_color": "#FFFFFF",
+        "padding-block-start": 48,
+        "padding-block-end": 40
+      }
+    },
+    "footer_bottom": {
+      "type": "footer",
+      "blocks": {
+        "row_utility": {
+          "type": "group",
+          "name": "Utility row",
+          "settings": {
+            "content_direction": "row",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "space-between",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "flex-start",
+            "gap": 16,
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "custom_height": 100,
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 8,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "util_copyright": {
+              "type": "text",
+              "name": "Copyright",
+              "settings": {
+                "text": "<p>© 2026 ENA®. Todos los derechos reservados.</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "0.75rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "util_certs": {
+              "type": "text",
+              "name": "Certs",
+              "settings": {
+                "text": "<h6>ISO 9001 · FDA · ARLA FOODS</h6>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "center",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "0.75rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "util_legal": {
+              "type": "text",
+              "name": "Legal",
+              "settings": {
+                "text": "<p><a href=\"/\" title=\"Términos\">Términos</a>   <a href=\"/\" title=\"Privacidad\">Privacidad</a></p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "right",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "0.75rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "util_copyright",
+            "util_certs",
+            "util_legal"
+          ]
+        }
+      },
+      "block_order": [
+        "row_utility"
+      ],
+      "name": "Footer utility",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 8,
+        "background_color": "#FFFFFF",
+        "padding-block-start": 20,
+        "padding-block-end": 24
+      }
+    }
+  },
+  "order": [
+    "footer",
+    "footer_bottom"
+  ]
+}

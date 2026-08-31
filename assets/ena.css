@@ -1,0 +1,847 @@
+/* ENA — global utilities & shared component styles.
+   Shared cross-section CSS lives here (section {% stylesheet %} is only bundled
+   on pages where that section renders). */
+
+:root {
+  --ena-ink: #111111;
+  --ena-text-secondary: #4a4a4a;
+  --ena-muted: #6e6e6e;
+  --ena-border: #e6e6e6;
+  --ena-surface: #f2f2f2;
+  --ena-surface-soft: #f7f7f7;
+  --ena-sale: #c42032;
+  --ena-sale-tint: #fbeaea;
+  --ena-brand: #1e5fa8;
+  --ena-brand-tint: rgba(30, 95, 168, 0.25);
+  --ena-gold: #c9a227;
+  --ena-dark: #0a0a0a;
+  --ena-radius: 8px;
+  --ena-radius-lg: 16px;
+  /* content 1280 max, >=80px gutters on wide screens (falls back to theme gutters on small) */
+  --ena-gutter: max(40px, calc((100% - 1280px) / 2));
+}
+
+/* Design language: uppercase Saira headings everywhere (h1-h3 handled by settings) */
+h4, h5, h6, .h4, .h5, .h6 {
+  text-transform: uppercase;
+}
+
+
+/* Caption / kicker label */
+.ena-caption {
+  font-family: var(--font-body--family);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ena-muted);
+}
+
+/* Small colored tag (MEJOR OPCIÓN, badges on cards) */
+.ena-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: var(--font-body--family);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: var(--ena-ink);
+  color: #fff;
+  line-height: 1.3;
+}
+.ena-tag--soft {
+  background: var(--ena-surface);
+  color: var(--ena-muted);
+}
+
+/* Star rating (inline SVG sizing must be global — see gotcha #18) */
+.ena-stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--ena-gold);
+}
+.ena-stars svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.ena-stars--lg svg {
+  width: 22px;
+  height: 22px;
+}
+/* PDP top rating stars — 24px + black (scoped so review stars keep gold/size) */
+.ena-rating .ena-stars {
+  color: var(--ena-ink);
+}
+.ena-rating .ena-stars svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Carbon-fiber texture on dark bands */
+.ena-carbon {
+  position: relative;
+}
+.ena-carbon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+}
+
+/* Full-width band with ENA gutters */
+.ena-band {
+  padding-inline: var(--ena-gutter);
+}
+
+/* Explicit title weight for custom components (heading weight is theme-global) */
+.ena-title {
+  font-family: var(--font-heading--family);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: inherit;
+}
+
+/* Footer — ENA look (logo renders natively from theme settings) */
+.shopify-section-group-footer-group h6 {
+  font-size: 13px;
+  letter-spacing: 1.2px;
+  margin-bottom: 12px;
+}
+.shopify-section-group-footer-group .text-block p {
+  color: var(--ena-text-secondary);
+}
+.shopify-section-group-footer-group .text-block a {
+  color: var(--ena-text-secondary);
+  text-decoration: none;
+  line-height: 2.15;
+}
+.shopify-section-group-footer-group .text-block a:hover {
+  color: var(--ena-ink);
+}
+
+/* Utility: money strikethrough */
+.ena-compare {
+  color: var(--ena-muted);
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.ena-sale-text {
+  color: var(--ena-sale);
+}
+
+/* ============================================================
+   PDP — buy box + gallery (styles for the stock product-information
+   composition; blocks-first, no forked sections)
+   ============================================================ */
+
+/* Design gutters: 80px page margins on desktop (content 1280 @1440).
+   Must target the body page-width classes — base.css sets --page-margin there. */
+@media screen and (min-width: 990px) {
+  .page-width-wide,
+  .page-width-normal,
+  .page-width-narrow,
+  .page-width-content {
+    --page-margin: 80px;
+  }
+}
+
+/* Column split per reference: media 712 / buy box 520 (1.37 : 1),
+   with a clean 48px gutter between the two columns */
+@media screen and (min-width: 990px) {
+  .product-information__grid:not(.product-information__grid--half, .product-information--media-none).product-information--media-left {
+    grid-template-columns: minmax(0, 1.37fr) minmax(0, 1fr) !important;
+    column-gap: 48px !important;
+  }
+  /* Horizon adds a half-gap padding-right on the media column; drop it so the
+     visible gutter is exactly the 48px column-gap above */
+  .product-information__grid.product-information--media-left .product-information__media {
+    padding-right: 0 !important;
+  }
+}
+@media screen and (min-width: 750px) {
+  .product-details {
+    padding-inline-start: 0 !important;
+  }
+  /* Unified page scroll (no inner scrollbox): the buy box scrolls WITH the
+     page until its bottom enters the viewport, then pins there while the
+     gallery keeps advancing (thumb rail stays sticky). When the buy box is
+     taller than the viewport this needs a negative sticky top equal to the
+     overflow — ena-pdp.js measures the column and sets --ena-details-top;
+     when it fits, the var is unset and Horizon's header offset applies. */
+  .product-details.sticky-content--desktop {
+    top: var(--ena-details-top, var(--sticky-header-offset, 0px));
+  }
+}
+
+/* Stacked gallery: 24px radius (desktop) + thumb rail */
+.product-information__media .media-gallery__grid > li,
+.product-information__media .product-media-container,
+.product-information__media .product-media__image {
+  border-radius: 24px;
+  overflow: hidden;
+}
+.product-information__media.ena-has-rail {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.ena-thumb-rail {
+  position: sticky;
+  top: calc(var(--header-height, 90px) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ena-thumb-rail__thumb {
+  width: 112px;
+  height: 112px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ena-surface);
+  cursor: pointer;
+}
+.ena-thumb-rail__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ena-thumb-rail__thumb.is-active {
+  border-color: var(--ena-ink);
+}
+@media screen and (max-width: 989px) {
+  .product-information__media.ena-has-rail {
+    display: block;
+  }
+  .ena-thumb-rail {
+    display: none;
+  }
+}
+/* Mobile: full-bleed square corners (no rounding) */
+@media screen and (max-width: 767px) {
+  .product-information__media .media-gallery__grid > li,
+  .product-information__media .product-media-container,
+  .product-information__media .product-media__image {
+    border-radius: 0;
+  }
+}
+
+/* Title */
+.product-details h1 {
+  font-size: 34px;
+  line-height: 1.05;
+  margin: 0;
+}
+
+/* Price — sale red + strikethrough compare; tight line-height so the number
+   doesn't carry dead space above/below (ticket: 1.6 → 1.15) */
+.product-details .price {
+  font-family: var(--font-heading--family);
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1.15;
+  color: var(--ena-ink);
+}
+/* Sale price stays ink-black (not red) — matches the product-card price and
+   keeps red reserved for the accent badge/low-stock (QA ticket) */
+.product-details .text-block:has(.compare-at-price) .price {
+  color: var(--ena-ink);
+}
+.product-details .compare-at-price {
+  font-family: var(--font-heading--family);
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--ena-muted);
+}
+
+/* Value chips: first chip filled, rest outlined (per reference) */
+.product-details .ena-chips__chip {
+  padding: 8px 14px;
+  background: #fff;
+  border: 1px solid var(--ena-border);
+}
+.product-details .ena-chips__chip:first-child {
+  background: var(--ena-surface);
+  border-color: transparent;
+}
+/* Mobile: tighten so all 3 chips fit one row in ~358px (no wrap, no restyle) */
+@media screen and (max-width: 767px) {
+  .product-details .ena-chips {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .product-details .ena-chips__chip {
+    padding: 8px 10px;
+  }
+}
+
+/* Countdown time size per reference */
+.ena-countdown {
+  padding: 15px 20px !important;
+}
+/* [hidden] must beat the class display (expired/blank offers stay gone) */
+.ena-countdown[hidden] {
+  display: none !important;
+}
+.ena-countdown__time {
+  font-size: 18px !important;
+}
+
+/* Captions darker per reference */
+.ena-caption {
+  color: var(--ena-text-secondary);
+}
+
+/* Flavor pills (decorated by ena-pdp.js) */
+.ena-flavor-fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ena-flavor-fieldset legend,
+.ena-size-fieldset legend {
+  font-family: var(--font-body--family);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ena-ink);
+  margin-bottom: 10px;
+}
+.ena-flavor-fieldset .variant-option__button-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--ena-border) !important;
+  border-radius: 999px !important;
+  padding: 8px 20px 8px 8px;
+  background: #fff;
+  font-weight: 500;
+  font-size: 14.5px;
+  cursor: pointer;
+  /* reserve decorated height (with swatch) so re-decoration doesn't reflow */
+  min-height: 47px;
+  box-sizing: border-box;
+}
+.ena-flavor-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  /* dedicated 28px disc swatches (transparent PNG) — contain, no crop */
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  flex-shrink: 0;
+  /* Horizon paints the selected state via an overlay span
+     (variant-option__button-label__pill) — lift the swatch above it,
+     like Horizon does with its own __text span */
+  position: relative;
+  z-index: 1;
+}
+.ena-flavor-fieldset .variant-option__button-label:has(input:checked) {
+  background: var(--ena-ink) !important;
+  color: #fff !important;
+  border-color: var(--ena-ink) !important;
+}
+
+/* Size rows (decorated by ena-pdp.js) */
+.ena-size-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ena-size-fieldset .variant-option__button-label {
+  display: grid !important;
+  grid-template-columns: auto auto 1fr auto;
+  grid-template-areas:
+    'radio name tag price'
+    'radio meta meta price';
+  column-gap: 14px;
+  row-gap: 3px;
+  align-items: center;
+  width: 100%;
+  height: auto !important;
+  /* reserve the decorated height so the variant morph (which briefly wipes the
+     JS-injected meta/price spans) can't collapse the row and shift the layout */
+  min-height: 83px !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+  border: 1px solid var(--ena-border) !important;
+  border-radius: 14px !important;
+  background: #fff;
+  padding: 16px 20px;
+  cursor: pointer;
+}
+/* kill Horizon's own checked-dot / pill / corner-indicator pseudos inside our rows */
+.ena-size-fieldset .variant-option__button-label::before,
+.ena-size-fieldset .variant-option__button-label::after,
+.ena-size-fieldset .variant-option__button-label input::before,
+.ena-size-fieldset .variant-option__button-label input::after,
+.ena-size-fieldset .variant-option__button-label__text::before,
+.ena-size-fieldset .variant-option__button-label__text::after {
+  content: none !important;
+  display: none !important;
+}
+.ena-size-fieldset .variant-option__button-label input[type='radio'] {
+  /* Horizon hides the input absolutely — restore it as the visible radio */
+  position: static !important;
+  opacity: 1 !important;
+  appearance: none;
+  -webkit-appearance: none;
+  grid-area: radio;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 1.5px solid var(--ena-border);
+  border-radius: 50%;
+  background: #fff no-repeat center / 100%;
+  cursor: pointer;
+}
+.ena-size-fieldset .variant-option__button-label:has(input:checked) {
+  border: 2px solid var(--ena-ink) !important;
+  padding: 15px 19px;
+}
+.ena-size-fieldset .variant-option__button-label input[type='radio']:checked {
+  border-color: var(--ena-ink);
+  background-color: var(--ena-ink);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 12.5l3.2 3.2L17.4 9' stroke='%23fff' stroke-width='2.4' fill='none'/%3E%3C/svg%3E");
+}
+.ena-size-fieldset .variant-option__button-label__text {
+  grid-area: name;
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--ena-ink);
+}
+.ena-size-fieldset .ena-tag {
+  grid-area: tag;
+  justify-self: start;
+}
+.ena-size-meta {
+  grid-area: meta;
+  font-size: 13px;
+  color: var(--ena-muted);
+}
+.ena-size-price {
+  grid-area: price;
+  font-family: var(--font-heading--family);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--ena-ink);
+  justify-self: end;
+}
+.ena-size-fieldset .variant-option__button-label__pill {
+  display: none !important;
+}
+
+/* Mobile: Tamaño as a compact 2×2 grid; cards restack vertically so
+   name/meta/price fit a ~165px column without clipping */
+@media screen and (max-width: 767px) {
+  .ena-size-fieldset {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .ena-size-fieldset legend {
+    grid-column: 1 / -1;
+    margin-bottom: 2px;
+  }
+  .ena-size-fieldset .variant-option__button-label {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'radio name'
+      'tag tag'
+      'meta meta'
+      'price price';
+    row-gap: 4px;
+    column-gap: 10px;
+    align-items: center;
+    align-content: start;
+    padding: 12px 14px;
+    min-height: 108px !important;
+  }
+  .ena-size-fieldset .variant-option__button-label:has(input:checked) {
+    padding: 11px 13px;
+  }
+  .ena-size-fieldset .variant-option__button-label input[type='radio'] {
+    width: 18px;
+    height: 18px;
+  }
+  .ena-size-fieldset .variant-option__button-label__text {
+    font-size: 14.5px;
+  }
+  .ena-size-fieldset .ena-tag {
+    justify-self: start;
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  .ena-size-meta {
+    font-size: 11px;
+    line-height: 1.45;
+    white-space: normal;
+  }
+  .ena-size-price {
+    justify-self: start;
+    font-size: 15.5px;
+    margin-top: 2px;
+  }
+}
+
+/* Low stock — black text, brand-blue indicator (circle + halo) */
+.product-details .product-inventory {
+  color: var(--ena-ink) !important;
+  font-weight: 600;
+}
+.product-details .product-inventory__icon-low {
+  color: var(--ena-brand) !important;
+}
+
+/* Qty + CTA row — qty and add-to-cart share one line on every breakpoint */
+.product-details .product-form-buttons,
+.product-details .buy-buttons-block .product-form-buttons--stacked {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 14px;
+}
+.product-details .quantity-selector,
+.product-details quantity-selector {
+  border: 1px solid var(--ena-border);
+  border-radius: 999px;
+}
+.product-details .add-to-cart-button .svg-wrapper {
+  display: none !important;
+}
+.product-details .add-to-cart-button {
+  flex: 1;
+  /* flex item must be allowed to shrink below its text's intrinsic width,
+     otherwise min-width:auto forces it past the container (mobile overflow) */
+  min-width: 0;
+  background: var(--ena-ink) !important;
+  color: #fff !important;
+  border-radius: 12px;
+  font-family: var(--font-heading--family);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  font-size: 14px;
+  min-height: 56px;
+}
+/* Mobile: the qty+CTA row is tight (~203px for the button after the 126px
+   stepper); shrink the label so 'Agregar al carrito · $32.000' fits on one
+   line inside the block instead of overflowing to the viewport edge */
+@media screen and (max-width: 749px) {
+  .product-details .add-to-cart-button {
+    font-size: 11.5px;
+    letter-spacing: 0.3px;
+    padding-inline: 8px;
+    white-space: nowrap;
+  }
+}
+.product-details shopify-accelerated-checkout,
+.product-details accelerated-checkout,
+.product-details .accelerated-checkout-block,
+.product-details [class*='accelerated'] {
+  display: none !important;
+}
+
+/* Description */
+.product-details .text-block p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+/* Club bar — slim per reference */
+.ena-club {
+  padding: 11px 16px !important;
+  border-radius: 8px !important;
+}
+.ena-club__brand {
+  font-size: 12px !important;
+}
+
+/* Upsell rows — reference sizing */
+.ena-upsell__row {
+  border-radius: 16px !important;
+  padding: 14px !important;
+}
+.ena-upsell__media {
+  width: 76px !important;
+  height: 76px !important;
+}
+.ena-upsell__add {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+/* Video story modal */
+.ena-story-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.72);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.ena-story-modal__box {
+  width: min(360px, 86vw);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+.ena-story-modal__box img {
+  width: 100%;
+  display: block;
+}
+.ena-story-modal__note {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  text-align: center;
+  padding: 10px;
+}
+
+/* Cross-sell card decoration */
+.ena-card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--font-body--family);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #111;
+}
+/* "Combiná con" recommendations carousel: no category tag (QA ticket).
+   Native "Oferta" sale badge is .product-badges__badge, so it's unaffected. */
+.product-recommendations .ena-card-badge {
+  display: none;
+}
+.ena-card-spec {
+  display: block;
+  font-size: 11.5px;
+  letter-spacing: 1px;
+  color: var(--ena-muted);
+  margin-top: 2px;
+}
+product-card .product-card__gallery,
+product-card .card-gallery {
+  position: relative;
+}
+
+/* Recommendations card body: give the title and price the same 16px inline
+   inset that .ena-card-spec already has, so all three text rows share one left
+   edge (QA ticket). Scoped to the carousel; the gallery is a sibling of these
+   rows inside .product-card__content, so it stays full-bleed. */
+.product-recommendations .product-card__content a.contents .text-block,
+.product-recommendations .product-card__content product-price {
+  padding-inline: 16px;
+}
+
+/* Product recommendations heading */
+.product-recommendations h2 {
+  font-size: 40px;
+}
+
+/* Announcement bar type — single line */
+.announcement-bar .announcement-bar__slides,
+.announcement-bar .announcement-bar__slide,
+.announcement-bar slideshow-slide,
+.announcement-bar p,
+.announcement-bar span {
+  font-size: 10.5px !important;
+  letter-spacing: 1px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+/* the slider measures a fixed slide width — let the single slide breathe */
+.announcement-bar .announcement-bar__slides {
+  width: auto !important;
+  min-width: 100%;
+  justify-content: center;
+}
+.announcement-bar slideshow-slide {
+  width: max-content !important;
+  overflow: visible !important;
+}
+@media screen and (max-width: 749px) {
+  .announcement-bar .announcement-bar__slides,
+  .announcement-bar .announcement-bar__slide,
+  .announcement-bar slideshow-slide,
+  .announcement-bar p,
+  .announcement-bar span {
+    white-space: normal;
+    font-size: 10px !important;
+    letter-spacing: 0.8px;
+  }
+  .announcement-bar slideshow-slide {
+    width: 100% !important;
+    text-align: center;
+  }
+}
+
+/* Header nav */
+#header-component .menu-list__link,
+#header-component nav a {
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+/* center the nav between logo and icons */
+#header-component .header__column--center header-menu,
+#header-component .header__column--center header-menu nav,
+#header-component .header__column--center header-menu ul,
+#header-component .header__column--center {
+  justify-content: center !important;
+}
+
+/* Mobile: center the logo (desktop keeps it left per the reference).
+   Whatever logo the merchant uploads in theme settings — overlay it centered
+   on the header columns grid (which spans the centered content track and is
+   exactly the icon-row height) so it lands at viewport centre AND on the icon
+   line, with hamburger (left) and icons (right) untouched. */
+@media screen and (max-width: 749px) {
+  #header-component .header__columns {
+    position: relative;
+  }
+  #header-component .header-logo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+}
+
+/* Stats strip — compact vertical rhythm on mobile (desktop uses gap 100) */
+@media screen and (max-width: 749px) {
+  .group-block-content:has(> .ena-stat) {
+    gap: 36px !important;
+  }
+}
+
+/* Footer utility row — hairline divider above */
+.shopify-section-group-footer-group .shopify-section + .shopify-section .footer-content {
+  border-top: 1px solid var(--ena-border);
+  padding-top: 18px;
+}
+.shopify-section-group-footer-group .footer .text-block a {
+  white-space: nowrap;
+}
+
+/* Accordion (details area) */
+.accordion summary.details__header,
+.accordion .details__header {
+  font-family: var(--font-heading--family) !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding-block: 20px;
+}
+
+/* Accordion / FAQ answers: the response fills the full column width. Horizon
+   caps text-block paragraphs at the "normal" reading width (~520px via
+   --max-width--body-normal); inside accordion content we want 100%. Overriding
+   the inline --max-width custom property makes the p's min(100%, var) = 100%. */
+.details-content rte-formatter,
+.details-content .text-block,
+.details-content .rte {
+  --max-width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ENA CLUB label on one line */
+.ena-club__brand {
+  white-space: nowrap;
+}
+
+/* Cross-sell cards — info block styling */
+product-card {
+  position: relative;
+  background: var(--ena-surface-soft);
+  border-radius: 8px;
+  overflow: hidden;
+  display: block;
+}
+product-card .product-card__content > a.contents,
+product-card .ena-card-spec,
+product-card product-price {
+  padding-inline: 16px;
+}
+product-card .product-card__content > a.contents {
+  padding-top: 14px;
+  color: var(--ena-ink);
+  text-decoration: none;
+}
+product-card .product-card__content > a.contents,
+product-card .product-card__content > a.contents * ,
+product-card .product-title {
+  font-family: var(--font-heading--family) !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+product-card product-price {
+  display: block;
+  padding-bottom: 16px;
+  padding-right: 64px;
+  font-weight: 700;
+}
+@media screen and (max-width: 749px) {
+  /* narrow cards: reserve a clear bottom-right zone for the + button */
+  product-card product-price {
+    padding-right: 16px !important;
+    padding-bottom: 60px !important;
+  }
+  .ena-card-plus {
+    width: 40px;
+    height: 40px;
+  }
+}
+.ena-card-spec {
+  padding-top: 2px;
+}
+.ena-card-plus {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: var(--ena-ink);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+}
+.ena-card-plus.is-added {
+  background: #2e7d32;
+}

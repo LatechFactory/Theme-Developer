@@ -1,0 +1,51 @@
+<div class="ena-amb__card" data-reveal="fade-up" {{ block.shopify_attributes }}>
+  <span class="ena-amb__media">
+    {%- if block.settings.image != blank -%}
+      {{ block.settings.image | image_url: width: 640 | image_tag: loading: 'lazy', alt: block.settings.name, class: 'ena-amb__img' }}
+    {%- elsif block.settings.asset != blank -%}
+      <img src="{{ block.settings.asset | asset_url }}" alt="{{ block.settings.name | escape }}" class="ena-amb__img" loading="lazy" width="320" height="430">
+    {%- endif -%}
+  </span>
+  <span class="ena-amb__overlay"></span>
+  <span class="ena-amb__label">
+    <strong>{{ block.settings.name }}</strong>
+    <small>{{ block.settings.role }}</small>
+  </span>
+</div>
+
+{% schema %}
+{
+  "name": "ENA · Ambassador",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "name",
+      "label": "Nombre",
+      "default": "Nombre Apellido"
+    },
+    {
+      "type": "text",
+      "id": "role",
+      "label": "Rol",
+      "default": "Atleta"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Foto"
+    },
+    {
+      "type": "text",
+      "id": "asset",
+      "label": "Asset fallback",
+      "info": "Nombre de archivo en assets/ si no hay foto elegida"
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Ambassador"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,108 @@
+{%- liquid
+  assign v = closest.product.selected_or_first_available_variant
+  assign servings = 0
+
+  # servings map: one "Option value:servings" pair per line
+  assign pairs = block.settings.servings_map | newline_to_br | split: '<br />'
+  for pair in pairs
+    assign parts = pair | strip | split: ':'
+    assign key = parts[0] | strip
+    if key == v.option2 or key == v.option1
+      assign servings = parts[1] | strip | plus: 0
+    endif
+  endfor
+-%}
+
+{%- capture servings_json -%}
+  {%- for pair in pairs -%}
+    {%- assign parts = pair | strip | split: ':' -%}
+    {%- if parts.size == 2 -%}
+      ,{{ parts[0] | strip | json }}: {{ parts[1] | strip | plus: 0 }}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+<script type="application/json" data-ena-servings-map>
+  { {{ servings_json | remove_first: ',' }} }
+</script>
+
+{%- if servings > 0 -%}
+  {%- liquid
+    assign per_serving = v.price | divided_by: servings
+    assign months = servings | divided_by: 30
+  -%}
+  <div class="ena-chips spacing-style" style="{% render 'spacing-style', settings: block.settings %}" {{ block.shopify_attributes }}>
+    <span class="ena-chips__chip"><strong>{{ per_serving | money | split: ',' | first }}</strong>&nbsp;por servicio</span>
+    <span class="ena-chips__chip">{{ servings }} servicios</span>
+    {%- if months > 0 -%}
+      <span class="ena-chips__chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="15" height="15"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.6h17M8 2.8v4M16 2.8v4"/></svg>
+        {{ months }} {% if months == 1 %}mes{% else %}meses{% endif %}
+      </span>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ena-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .ena-chips__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ena-surface-soft, #f7f7f7);
+    border: 1px solid var(--ena-border, #e6e6e6);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: var(--font-body--family);
+    font-size: 13.5px;
+    color: var(--ena-text-secondary);
+  }
+  .ena-chips__chip strong {
+    color: var(--ena-ink);
+    font-weight: 700;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "ENA · Chips de valor",
+  "tag": null,
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "servings_map",
+      "label": "Servicios por tamaño (valor:servicios por línea)",
+      "default": "150 g:30\n300 g:60\n1 Kg:200\nMonodosis:20"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "ENA · Chips de valor",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}
