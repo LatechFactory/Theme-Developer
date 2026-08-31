@@ -1,0 +1,163 @@
+name: new-theme
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Nombre corto del fix (ej: cart-qty)"
+        required: true
+      ticket:
+        description: "Ticket asociado (opcional)"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: registry
+  cancel-in-progress: false
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm i -g @shopify/cli
+
+      - name: Obtener token
+        env:
+          CID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          CSEC: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+        run: |
+          TOKEN=$(curl -sf -X POST \
+            "https://${{ vars.SHOP_DOMAIN }}/admin/oauth/access_token" \
+            -d grant_type=client_credentials \
+            -d client_id="$CID" \
+            -d client_secret="$CSEC" | jq -r .access_token)
+
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "No se pudo obtener el token"; exit 1
+          fi
+
+          echo "::add-mask::$TOKEN"
+          echo "SHOPIFY_CLI_THEME_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+
+      - name: Definir nombres
+        run: |
+          SLUG=$(echo "${{ inputs.name }}" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed 's/[^a-z0-9]\+/-/g; s/^-//; s/-$//')
+
+          if [ -z "$SLUG" ]; then
+            echo "El nombre no produjo un slug valido"; exit 1
+          fi
+
+          TICKET="${{ inputs.ticket }}"
+          if [ -n "$TICKET" ]; then
+            TITLE="$TICKET · $SLUG"
+          else
+            TITLE="$SLUG"
+          fi
+
+          echo "SLUG=$SLUG"           >> "$GITHUB_ENV"
+          echo "BRANCH=theme/$SLUG"   >> "$GITHUB_ENV"
+          echo "TITLE=$TITLE"         >> "$GITHUB_ENV"
+          echo "TICKET=$TICKET"       >> "$GITHUB_ENV"
+
+      - name: Verificar que la branch no exista
+        run: |
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            echo "La branch $BRANCH ya existe"; exit 1
+          fi
+
+      - name: Configurar git
+        run: |
+          git config user.name "theme-merge"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Pull del theme live
+        run: |
+          shopify theme pull \
+            --store "${{ vars.SHOP_DOMAIN }}" \
+            --live --force --path .
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "main ya estaba al dia"
+          else
+            git commit -m "mirror: previo a $BRANCH"
+            git pull --rebase origin main
+            git push origin main
+          fi
+
+      - name: Crear la branch
+        run: |
+          git checkout -b "$BRANCH"
+          git push -u origin "$BRANCH"
+
+      - name: Crear el theme en Shopify
+        run: |
+          RESP=$(curl -sf -X POST \
+            "https://${{ vars.SHOP_DOMAIN }}/admin/api/2026-01/themes.json" \
+            -H "X-Shopify-Access-Token: $SHOPIFY_CLI_THEME_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg n "$TITLE" \
+                  '{theme:{name:$n, role:"unpublished"}}')")
+
+          THEME_ID=$(echo "$RESP" | jq -r '.theme.id')
+
+          if [ -z "$THEME_ID" ] || [ "$THEME_ID" = "null" ]; then
+            echo "No se pudo crear el theme"; echo "$RESP"; exit 1
+          fi
+
+          echo "THEME_ID=$THEME_ID" >> "$GITHUB_ENV"
+          echo "Theme creado: $THEME_ID"
+
+      - name: Subir los archivos
+        run: |
+          shopify theme push \
+            --store "${{ vars.SHOP_DOMAIN }}" \
+            --theme "$THEME_ID" \
+            --force --path .
+
+      - name: Registrar en themes.json
+        run: |
+          git checkout main
+          git pull --rebase origin main
+
+          [ -f themes.json ] || echo '{}' > themes.json
+
+          jq --arg id "$THEME_ID" \
+             --arg branch "$BRANCH" \
+             --arg title "$TITLE" \
+             --arg ticket "$TICKET" \
+             --arg created "$(date -u +%Y-%m-%d)" \
+             '.[$id] = {
+                branch: $branch,
+                title: $title,
+                ticket: $ticket,
+                origin: "sistema",
+                created: $created,
+                last_push: null,
+                status: "open"
+              }' themes.json > tmp.json && mv tmp.json themes.json
+
+          git add themes.json
+          git commit -m "registro: $TITLE ($THEME_ID)"
+          git push origin main
+
+      - name: Resumen
+        run: |
+          echo "### Theme creado" >> $GITHUB_STEP_SUMMARY
+          echo "- **$TITLE** (\`$THEME_ID\`)" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: \`$BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?preview_theme_id=$THEME_ID)" \
+            >> $GITHUB_STEP_SUMMARY
