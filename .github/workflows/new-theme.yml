@@ -17,6 +17,10 @@ concurrency:
   group: registry
   cancel-in-progress: false
 
+env:
+  SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+  SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
+
 jobs:
   create:
     runs-on: ubuntu-latest
@@ -31,24 +35,6 @@ jobs:
           node-version: 22
 
       - run: npm i -g @shopify/cli
-
-      - name: Obtener token
-        env:
-          CID: ${{ secrets.SHOPIFY_CLIENT_ID }}
-          CSEC: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
-        run: |
-          TOKEN=$(curl -sf -X POST \
-            "https://${{ vars.SHOP_DOMAIN }}/admin/oauth/access_token" \
-            -d grant_type=client_credentials \
-            -d client_id="$CID" \
-            -d client_secret="$CSEC" | jq -r .access_token)
-
-          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-            echo "No se pudo obtener el token"; exit 1
-          fi
-
-          echo "::add-mask::$TOKEN"
-          echo "SHOPIFY_CLI_THEME_TOKEN=$TOKEN" >> "$GITHUB_ENV"
 
       - name: Definir nombres
         run: |
@@ -67,10 +53,10 @@ jobs:
             TITLE="$SLUG"
           fi
 
-          echo "SLUG=$SLUG"           >> "$GITHUB_ENV"
-          echo "BRANCH=theme/$SLUG"   >> "$GITHUB_ENV"
-          echo "TITLE=$TITLE"         >> "$GITHUB_ENV"
-          echo "TICKET=$TICKET"       >> "$GITHUB_ENV"
+          echo "SLUG=$SLUG"         >> "$GITHUB_ENV"
+          echo "BRANCH=theme/$SLUG" >> "$GITHUB_ENV"
+          echo "TITLE=$TITLE"       >> "$GITHUB_ENV"
+          echo "TICKET=$TICKET"     >> "$GITHUB_ENV"
 
       - name: Verificar que la branch no exista
         run: |
@@ -85,10 +71,7 @@ jobs:
 
       - name: Pull del theme live
         run: |
-          shopify theme pull \
-            --store "${{ vars.SHOP_DOMAIN }}" \
-            --live --force --path .
-
+          shopify theme pull --live --force --path .
           git add -A
           if git diff --cached --quiet; then
             echo "main ya estaba al dia"
@@ -105,28 +88,16 @@ jobs:
 
       - name: Crear el theme en Shopify
         run: |
-          RESP=$(curl -sf -X POST \
-            "https://${{ vars.SHOP_DOMAIN }}/admin/api/2026-01/themes.json" \
-            -H "X-Shopify-Access-Token: $SHOPIFY_CLI_THEME_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "$(jq -n --arg n "$TITLE" \
-                  '{theme:{name:$n, role:"unpublished"}}')")
+          OUT=$(shopify theme push --unpublished --json \
+                --theme-name "$TITLE" --path .)
+          echo "$OUT"
 
-          THEME_ID=$(echo "$RESP" | jq -r '.theme.id')
-
+          THEME_ID=$(echo "$OUT" | jq -r '.theme.id')
           if [ -z "$THEME_ID" ] || [ "$THEME_ID" = "null" ]; then
-            echo "No se pudo crear el theme"; echo "$RESP"; exit 1
+            echo "No se pudo crear el theme"; exit 1
           fi
 
           echo "THEME_ID=$THEME_ID" >> "$GITHUB_ENV"
-          echo "Theme creado: $THEME_ID"
-
-      - name: Subir los archivos
-        run: |
-          shopify theme push \
-            --store "${{ vars.SHOP_DOMAIN }}" \
-            --theme "$THEME_ID" \
-            --force --path .
 
       - name: Registrar en themes.json
         run: |
@@ -156,8 +127,9 @@ jobs:
 
       - name: Resumen
         run: |
-          echo "### Theme creado" >> $GITHUB_STEP_SUMMARY
-          echo "- **$TITLE** (\`$THEME_ID\`)" >> $GITHUB_STEP_SUMMARY
-          echo "- Branch: \`$BRANCH\`" >> $GITHUB_STEP_SUMMARY
-          echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?preview_theme_id=$THEME_ID)" \
-            >> $GITHUB_STEP_SUMMARY
+          {
+            echo "### Theme creado"
+            echo "- **$TITLE** (\`$THEME_ID\`)"
+            echo "- Branch: \`$BRANCH\`"
+            echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?preview_theme_id=$THEME_ID)"
+          } >> "$GITHUB_STEP_SUMMARY"
