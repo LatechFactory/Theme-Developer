@@ -48,7 +48,7 @@ jobs:
 
           TICKET="${{ inputs.ticket }}"
           if [ -n "$TICKET" ]; then
-            TITLE="$TICKET · $SLUG"
+            TITLE="$TICKET - $SLUG"
           else
             TITLE="$SLUG"
           fi
@@ -88,8 +88,7 @@ jobs:
 
       - name: Crear el theme en Shopify
         run: |
-          OUT=$(shopify theme push --unpublished --json \
-                --theme-name "$TITLE" --path .)
+          OUT=$(shopify theme push --unpublished --json --path .)
           echo "$OUT"
 
           THEME_ID=$(echo "$OUT" | jq -r '.theme.id')
@@ -98,6 +97,17 @@ jobs:
           fi
 
           echo "THEME_ID=$THEME_ID" >> "$GITHUB_ENV"
+          echo "Theme creado: $THEME_ID"
+
+      - name: Renombrar el theme
+        run: |
+          RESP=$(curl -sf -X PUT \
+            "https://theme-kit-access.shopifyapps.com/cli/admin/api/2026-01/themes/$THEME_ID.json" \
+            -H "X-Shopify-Access-Token: $SHOPIFY_CLI_THEME_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg n "$TITLE" '{theme:{name:$n}}')")
+
+          echo "$RESP" | jq -r '.theme.name // "sin respuesta"'
 
       - name: Registrar en themes.json
         run: |
