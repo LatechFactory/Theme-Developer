@@ -1,0 +1,117 @@
+name: push-on-commit
+
+on:
+  push:
+    branches:
+      - "theme/**"
+
+permissions:
+  contents: write
+
+env:
+  SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+  SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm i -g @shopify/cli
+
+      - name: Resolver el theme
+        run: |
+          git fetch origin main --depth=1
+          git show origin/main:themes.json > /tmp/registry.json 2>/dev/null \
+            || { echo "No hay themes.json en main"; exit 1; }
+
+          BRANCH="${GITHUB_REF#refs/heads/}"
+
+          THEME_ID=$(jq -r --arg b "$BRANCH" \
+            'to_entries[] | select(.value.branch == $b) | .key' /tmp/registry.json)
+
+          if [ -z "$THEME_ID" ]; then
+            echo "La branch $BRANCH no esta registrada en themes.json"
+            exit 1
+          fi
+
+          echo "BRANCH=$BRANCH"     >> "$GITHUB_ENV"
+          echo "THEME_ID=$THEME_ID" >> "$GITHUB_ENV"
+          echo "Theme destino: $THEME_ID"
+
+      - name: Verificar que no sea el live
+        run: |
+          ROLE=$(shopify theme list --json \
+            | jq -r --arg id "$THEME_ID" \
+              '.[] | select((.id|tostring) == $id) | .role')
+
+          echo "Rol del theme: $ROLE"
+
+          if [ -z "$ROLE" ]; then
+            echo "El theme $THEME_ID no existe en la tienda"; exit 1
+          fi
+
+          if [ "$ROLE" = "live" ] || [ "$ROLE" = "main" ]; then
+            echo "ABORTADO: el theme destino esta publicado"
+            exit 1
+          fi
+
+      - name: Archivos modificados
+        run: |
+          if [ "$(git rev-list --count HEAD)" -lt 2 ]; then
+            FILES=""
+          else
+            FILES=$(git diff --name-only HEAD~1 HEAD \
+              | grep -E '^(assets|config|layout|locales|sections|snippets|templates)/' \
+              || true)
+          fi
+
+          if [ -z "$FILES" ]; then
+            echo "Sin cambios en archivos de theme"
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          else
+            echo "$FILES"
+            echo "ONLY=$(echo "$FILES" | sed 's/^/--only /' | tr '\n' ' ')" >> "$GITHUB_ENV"
+          fi
+
+      - name: Push a Shopify
+        if: env.SKIP != '1'
+        run: |
+          shopify theme push --theme "$THEME_ID" --force --path . $ONLY
+
+      - name: Actualizar last_push
+        if: env.SKIP != '1'
+        run: |
+          git config user.name "theme-merge"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          git checkout -B main origin/main
+
+          jq --arg id "$THEME_ID" \
+             --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+             '.[$id].last_push = $ts' themes.json > tmp.json && mv tmp.json themes.json
+
+          if ! git diff --quiet themes.json; then
+            git add themes.json
+            git commit -m "push: $THEME_ID"
+            git pull --rebase origin main
+            git push origin main
+          fi
+
+      - name: Resumen
+        if: env.SKIP != '1'
+        run: |
+          {
+            echo "### Push realizado"
+            echo "- Theme: \`$THEME_ID\`"
+            echo "- Branch: \`$BRANCH\`"
+            echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?preview_theme_id=$THEME_ID)"
+          } >> "$GITHUB_STEP_SUMMARY"
