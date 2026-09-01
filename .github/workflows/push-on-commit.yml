@@ -49,17 +49,13 @@ jobs:
       - name: Verificar que no sea el live
         run: |
           ROLE=$(shopify theme list --json \
-            | jq -r --arg id "$THEME_ID" \
-              '.[] | select((.id|tostring) == $id) | .role')
+            | jq -r --argjson id "$THEME_ID" \
+              '.[] | select(.id == $id) | .role')
 
           echo "Rol del theme: $ROLE"
 
-          if [ -z "$ROLE" ]; then
-            echo "El theme $THEME_ID no existe en la tienda"; exit 1
-          fi
-
-          if [ "$ROLE" = "live" ] || [ "$ROLE" = "main" ]; then
-            echo "ABORTADO: el theme destino esta publicado"
+          if [ "$ROLE" != "unpublished" ]; then
+            echo "ABORTADO: el theme $THEME_ID tiene rol '$ROLE' (se esperaba unpublished)"
             exit 1
           fi
 
