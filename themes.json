@@ -16,5 +16,14 @@
     "created": "2026-09-02",
     "last_push": "2026-09-02T21:18:44Z",
     "status": "open"
+  },
+  "191028625722": {
+    "branch": "theme/copy-de-prod",
+    "title": "1234 - copy-de-prod",
+    "ticket": "1234",
+    "origin": "sistema",
+    "created": "2026-09-02",
+    "last_push": null,
+    "status": "open"
   }
 }
