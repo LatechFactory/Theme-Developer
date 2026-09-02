@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: registry
+  cancel-in-progress: false
+
 env:
   SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
   SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
@@ -65,7 +69,7 @@ jobs:
             FILES=""
           else
             FILES=$(git diff --name-only HEAD~1 HEAD \
-              | grep -E '^(assets|config|layout|locales|sections|snippets|templates)/' \
+              | grep -E '^(assets|blocks|config|layout|locales|sections|snippets|templates)/' \
               || true)
           fi
 
