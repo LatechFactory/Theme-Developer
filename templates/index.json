@@ -16,7 +16,7 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>The best test products</p>",
+            "text": "<p>The new test products</p>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
