@@ -18,14 +18,18 @@ operativo: estado actual, convenciones y trampas ya descubiertas.
 | 0 — Credenciales y CLI en Actions | Hecho |
 | 1 — `mirror.yml`, espejo diario del live | Hecho |
 | 2 — `new-theme.yml`, alta de theme | Hecho |
-| 3 — `push-on-commit.yml`, deploy + guard de rol | Hecho, guard sin probar a fondo |
-| 4a — Merge dry run | **Siguiente** |
-| 4b — Merge con PR | Pendiente |
+| 3 — `push-on-commit.yml`, deploy + guard de rol | Hecho, guard validado en Actions |
+| 4a — Merge dry run | Hecho, sin correr todavía en Actions |
+| 4b — Merge con PR | **Siguiente** |
 | 5 — Gate de JSON | Pendiente |
 | 6 — Reaper | Pendiente |
 
-**Pendiente inmediato:** probar el guard de rol publicando un theme a
-propósito y verificando que `push-on-commit` aborte.
+**Guard de rol validado:** se publicó un theme a propósito y `push-on-commit`
+abortó en "Verificar que no sea el live" con `rol 'live'` → exit 1, saltando
+push y `last_push`. La lista blanca (`role == "unpublished"`) funciona.
+
+**Pendiente inmediato:** correr `merge.yml` (dry run) con un par origen/destino
+real y verificar el reporte de conflicto/limpio y la lista de archivos.
 
 ---
 

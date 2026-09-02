@@ -1,0 +1,165 @@
+name: merge
+
+# Etapa 4a: dry run. Hace el doble pull y el merge local para reportar si
+# habria conflicto y que archivos toca. No pushea nada — ni a Shopify ni a git.
+# La escritura del merge (push al theme destino, PR ante conflicto) es 4b.
+
+on:
+  workflow_dispatch:
+    inputs:
+      origen:
+        description: "Theme ID origen (X) — de donde sale el fix (ver themes.json)"
+        required: true
+      destino:
+        description: "Theme ID destino (A) — donde se aplicaria (ver themes.json)"
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+  SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm i -g @shopify/cli
+
+      - name: Resolver themes y branches
+        run: |
+          X="${{ inputs.origen }}"
+          A="${{ inputs.destino }}"
+
+          if [ "$X" = "$A" ]; then
+            echo "Origen y destino son el mismo theme"; exit 1
+          fi
+
+          git show origin/main:themes.json > /tmp/registry.json 2>/dev/null \
+            || { echo "No hay themes.json en main"; exit 1; }
+
+          BRANCH_X=$(jq -r --arg id "$X" '.[$id].branch // empty' /tmp/registry.json)
+          BRANCH_A=$(jq -r --arg id "$A" '.[$id].branch // empty' /tmp/registry.json)
+
+          if [ -z "$BRANCH_X" ]; then echo "El origen $X no esta registrado en themes.json"; exit 1; fi
+          if [ -z "$BRANCH_A" ]; then echo "El destino $A no esta registrado en themes.json"; exit 1; fi
+
+          echo "X=$X"               >> "$GITHUB_ENV"
+          echo "A=$A"               >> "$GITHUB_ENV"
+          echo "BRANCH_X=$BRANCH_X" >> "$GITHUB_ENV"
+          echo "BRANCH_A=$BRANCH_A" >> "$GITHUB_ENV"
+          echo "Origen:  $X ($BRANCH_X)"
+          echo "Destino: $A ($BRANCH_A)"
+
+      - name: Consultar roles
+        run: |
+          LIST=$(shopify theme list --json)
+          ROLE_X=$(echo "$LIST" | jq -r --argjson id "$X" '.[] | select(.id == $id) | .role')
+          ROLE_A=$(echo "$LIST" | jq -r --argjson id "$A" '.[] | select(.id == $id) | .role')
+
+          echo "ROLE_X=${ROLE_X:-desconocido}" >> "$GITHUB_ENV"
+          echo "ROLE_A=${ROLE_A:-desconocido}" >> "$GITHUB_ENV"
+          echo "Rol origen: ${ROLE_X:-desconocido} | Rol destino: ${ROLE_A:-desconocido}"
+
+          # El live queda excluido como destino de un merge (DESIGN 4.4).
+          if [ "$ROLE_A" = "live" ]; then
+            echo "El destino $A es el theme live; excluido como destino de merge"
+            exit 1
+          fi
+
+      - name: Configurar git
+        run: |
+          git config user.name "theme-merge"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Pull del theme origen (X) sobre su branch
+        run: |
+          git checkout -B "$BRANCH_X" "origin/$BRANCH_X"
+          shopify theme pull --theme "$X" --force --path .
+          git add -A
+          git commit -m "dry-run: pull de origen $X" || echo "origen sin cambios"
+
+      - name: Pull del theme destino (A) sobre su branch
+        run: |
+          git checkout -B "$BRANCH_A" "origin/$BRANCH_A"
+          shopify theme pull --theme "$A" --force --path .
+          git add -A
+          git commit -m "dry-run: pull de destino $A" || echo "destino sin cambios"
+
+      - name: Merge dry run
+        run: |
+          git checkout "$BRANCH_A"
+
+          BASE=$(git merge-base "$BRANCH_A" "$BRANCH_X")
+
+          # Archivos de theme que el origen trae respecto de la base de merge.
+          git diff --name-only "$BASE" "$BRANCH_X" \
+            | grep -E '^(assets|blocks|config|layout|locales|sections|snippets|templates)/' \
+            > /tmp/brings.txt || true
+
+          if git merge --no-commit --no-ff "$BRANCH_X" > /tmp/merge.log 2>&1; then
+            echo "RESULT=clean" >> "$GITHUB_ENV"
+            : > /tmp/conflicts.txt
+          else
+            echo "RESULT=conflict" >> "$GITHUB_ENV"
+            git diff --name-only --diff-filter=U > /tmp/conflicts.txt || true
+          fi
+
+          # Deshacer el merge: dry run, no se persiste nada.
+          git merge --abort 2>/dev/null || true
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Merge dry run"
+            echo ""
+            echo "| | Theme | Branch | Rol |"
+            echo "|---|---|---|---|"
+            echo "| Origen (X)  | \`${X:-?}\` | \`${BRANCH_X:-?}\` | ${ROLE_X:-?} |"
+            echo "| Destino (A) | \`${A:-?}\` | \`${BRANCH_A:-?}\` | ${ROLE_A:-?} |"
+            echo ""
+
+            case "${RESULT:-none}" in
+              clean)    echo "**Resultado: ✅ merge limpio** — sin conflictos." ;;
+              conflict) echo "**Resultado: ⚠️ conflicto** — resolucion manual (PR en etapa 4b)." ;;
+              *)        echo "**Resultado: no se llego a mergear** — ver logs del job." ;;
+            esac
+            echo ""
+
+            echo "**Archivos que trae el origen:**"
+            if [ -s /tmp/brings.txt ]; then
+              echo '```'; cat /tmp/brings.txt; echo '```'
+            else
+              echo "_ninguno_"
+            fi
+
+            if [ "${RESULT:-}" = "conflict" ] && [ -s /tmp/conflicts.txt ]; then
+              echo ""
+              echo "**Archivos en conflicto:**"
+              echo '```'; cat /tmp/conflicts.txt; echo '```'
+            fi
+
+            # JSON que en el merge real va a requerir revision manual (DESIGN 5).
+            if [ -s /tmp/brings.txt ]; then
+              REVIEW=$(grep -E '^(templates/.*\.json|sections/.*\.json|config/settings_data\.json)$' /tmp/brings.txt || true)
+              if [ -n "$REVIEW" ]; then
+                echo ""
+                echo "**JSON que requerira revision manual (etapa 5):**"
+                echo '```'; echo "$REVIEW"; echo '```'
+              fi
+            fi
+
+            echo ""
+            echo "_Dry run: no se pusheo nada a Shopify ni a git._"
+          } >> "$GITHUB_STEP_SUMMARY"
