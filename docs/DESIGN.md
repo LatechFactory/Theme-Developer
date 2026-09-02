@@ -182,10 +182,11 @@ Los cambios hechos desde el theme editor **no** disparan este flujo. Se incorpor
    - El pull de X trae todo lo que difiere del live: el trabajo hecho por editor (imágenes, settings, contenido) además de lo ya deployado. Ese es el delta del fix.
    - El pull de A captura el drift del merchant en el destino, y es lo que hace correcto el three-way merge.
 3. `git merge branch-X` sobre `branch-A`.
-4. **Si hay conflicto:** se abre un PR en GitHub y el flujo termina. Resolución manual.
-5. **Si no hay conflicto:** se corre el gate de JSON (§5). Si requiere revisión, se abre PR.
+4. **Si hay conflicto de git:** se pushean `branch-A` y `branch-X` y se abre un PR. Resolución manual — es el **único** caso que escala a un developer.
+5. **Si el merge es limpio:** se commitea sobre `branch-A`. No hay gate que bloquee. Los diffs JSON destructivos se **anotan** (§5) pero no frenan el push.
 6. Se consulta el `role` de theme A **inmediatamente antes del push**. Se aborta salvo que sea `unpublished` (§6.1).
-7. `shopify theme push --theme <A> --only <archivos del merge>`
+7. `shopify theme push --theme <A> --only <archivos del merge>`.
+8. Se entrega el **preview link** para verificación visual. La puede hacer cualquier persona, no un developer: es la verificación real del merge (§5, §7.1).
 
 ### 4.5 Publicación
 
@@ -203,25 +204,52 @@ Cierra branches y borra themes de entradas con `status: closed` y antigüedad ma
 
 ## 5. Tratamiento de archivos JSON
 
-El JSON de configuración es generado por máquina, con anidamiento profundo e IDs autogenerados. Git lo mergea por línea, lo cual produce dos riesgos: conflictos ilegibles, y —peor— merges automáticos sintácticamente válidos pero semánticamente rotos.
+El JSON de configuración es generado por máquina, con anidamiento profundo e IDs
+autogenerados. Git lo mergea por línea, con dos consecuencias: cuando dos ramas
+tocan la **misma** región hay conflicto, y cuando tocan **regiones distintas del
+mismo archivo** el merge pasa limpio aunque combine dos intenciones — a veces con
+un resultado que nadie diseñó. Un `templates/index.json` tocado de ambos lados
+**no garantiza conflicto**.
 
-La regla es por **forma del diff**, no por nombre de archivo.
+**Política (revisada en v3).** El único caso que escala a un developer es el
+**conflicto de git**. Un merge limpio se pushea al theme destino (sin publicar) y
+se **verifica visualmente contra el preview** — tarea que puede hacer cualquiera,
+no un developer.
+
+Es deliberado: leer un diff de JSON con IDs autogenerados no permite juzgar si el
+resultado es correcto; mirar la página renderizada, sí. Y es seguro porque el
+sistema nunca publica (§2.4): el peor caso es un preview que se ve mal y se
+re-mergea. Esto descarga a los developers de una revisión de bajo valor y habilita
+a no-developers a operar merges.
+
+### 5.1 Anotación de diffs destructivos
+
+Hay una clase de merge limpio que el preview puede no delatar: el que **modifica o
+elimina** claves que el merchant ya tenía en `config/settings_data.json` (a
+diferencia de solo **agregar** claves nuevas). Un borrado silencioso puede estar
+en una página que el revisor no abrió.
+
+Por eso el flujo **clasifica automáticamente** el diff de `settings_data.json`
+—comparando el estado del destino previo al merge contra el resultado— y, si es
+destructivo, lo **anota** en el resumen y en el handoff al revisor: qué claves
+cambiaron, para orientar qué mirar en el preview. Es una anotación, **no un
+bloqueo**: no frena el push ni requiere un developer.
 
 | Archivo | Tratamiento |
 |---|---|
-| `config/settings_schema.json` | Es código. Define qué settings existen. Se mergea normalmente. |
-| `config/settings_data.json` — diff solo aditivo | Pasa automático. Claves nuevas, ninguna existente modificada ni eliminada. |
-| `config/settings_data.json` — modifica o elimina claves | **Revisión manual obligatoria.** Pisa decisiones del merchant. |
-| `templates/*.json` | **Revisión manual obligatoria.** |
-| `sections/*.json` (section groups) | **Revisión manual obligatoria.** |
+| `config/settings_schema.json` | Es código. Se mergea normalmente. |
+| `config/settings_data.json` — diff aditivo | Push automático. |
+| `config/settings_data.json` — modifica/elimina claves | Push automático **+ anotación** de las claves tocadas. |
+| `templates/*.json`, `sections/*.json` | Push automático; se listan como cambio estructural a mirar en el preview. |
+| Cualquier archivo con **conflicto de git** | Único caso que escala a developer (PR). |
 
-### Nota sobre settings
+### 5.2 Nota sobre settings
 
-Para shippear un setting nuevo alcanza con mergear `settings_schema.json`: Shopify usa el `default` declarado cuando la clave no existe en `settings_data.json`.
-
-Tocar `settings_data.json` solo es necesario cuando el feature requiere un valor concreto distinto del default, o cuando se quiere dejar precargada una configuración. Ese caso es legítimo y lo cubre la regla aditiva.
-
-Un diff que **modifica** claves existentes casi siempre es contaminación de un pull, no una intención. De ahí la revisión.
+Para shippear un setting nuevo alcanza con mergear `settings_schema.json`: Shopify
+usa el `default` declarado cuando la clave no existe en `settings_data.json`. Tocar
+`settings_data.json` solo es necesario cuando el feature requiere un valor concreto
+distinto del default, o para dejar precargada una configuración — ese caso es
+aditivo.
 
 ---
 
@@ -307,9 +335,15 @@ O sea, el sistema es preciso cuando el theme duplicado venía del live, y conser
 
 ### 7.3 El merge semántico de JSON no es verificable automáticamente
 
-El gate de §5 detecta la **forma** del diff, no su corrección. Un merge aditivo puede igualmente producir un estado inválido (por ejemplo, una sección que referencia un block ID inexistente en la otra rama).
+La anotación de §5.1 detecta la **forma** del diff (aditivo vs destructivo), no su
+corrección. Un merge limpio y aditivo puede igualmente producir un estado inválido
+(por ejemplo, una sección que referencia un block ID inexistente en la otra rama).
+Por eso la política B se apoya en la **verificación visual contra el preview** como
+red final, no en el análisis del JSON.
 
-*Refinamiento posible:* validación estructural post-merge que verifique integridad referencial entre `settings_data.json` y los templates. Requiere modelar la estructura del theme; no es trivial.
+*Refinamiento posible:* validación estructural post-merge que verifique integridad
+referencial entre `settings_data.json` y los templates, y/o Playwright contra el
+preview (§7.1). Requiere modelar la estructura del theme; no es trivial.
 
 ### 7.4 El drift entre merges no queda registrado
 

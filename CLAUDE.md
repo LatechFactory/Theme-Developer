@@ -19,17 +19,22 @@ operativo: estado actual, convenciones y trampas ya descubiertas.
 | 1 — `mirror.yml`, espejo diario del live | Hecho |
 | 2 — `new-theme.yml`, alta de theme | Hecho |
 | 3 — `push-on-commit.yml`, deploy + guard de rol | Hecho, guard validado en Actions |
-| 4a — Merge dry run | Hecho, sin correr todavía en Actions |
-| 4b — Merge con PR | **Siguiente** |
-| 5 — Gate de JSON | Pendiente |
-| 6 — Reaper | Pendiente |
+| 4a — Merge dry run (`merge.yml`) | Hecho, validado en Actions |
+| 4b — Merge apply (`merge-apply.yml`, política B) | Hecho, sin probar en Actions |
+| 5 — Gate de JSON | Absorbido en 4b como anotación (política B) |
+| 6 — Reaper | **Siguiente** |
 
 **Guard de rol validado:** se publicó un theme a propósito y `push-on-commit`
 abortó en "Verificar que no sea el live" con `rol 'live'` → exit 1, saltando
 push y `last_push`. La lista blanca (`role == "unpublished"`) funciona.
 
-**Pendiente inmediato:** correr `merge.yml` (dry run) con un par origen/destino
-real y verificar el reporte de conflicto/limpio y la lista de archivos.
+**4a validado:** dry run `191025840442` → `191028625722` dio merge limpio,
+trajo `templates/index.json` y lo marcó como JSON a revisar.
+
+**Pendiente inmediato:** probar `merge-apply.yml` en los dos caminos —
+(a) merge limpio: verificar push al destino, preview link y anotación de
+`settings_data.json`; (b) conflicto de git: verificar que abre PR y **no**
+pushea a Shopify.
 
 ---
 
@@ -173,21 +178,29 @@ No romper sin discutirlo primero. La justificación está en `docs/DESIGN.md`.
 
 ---
 
-## Reglas para archivos JSON (etapa 5, todavía no implementado)
+## Reglas para archivos JSON (política B, etapa 5)
 
-La regla es por forma del diff, no por nombre de archivo.
+Revisada. **El único caso que escala a un developer es el conflicto de git.**
+Un merge limpio se pushea al theme destino (sin publicar) y se verifica
+**visualmente contra el preview** — lo puede hacer cualquiera, no un developer.
+Es seguro porque el sistema nunca publica (invariante 2).
+
+Los diffs JSON destructivos no bloquean: se **anotan** para orientar la
+revisión visual.
 
 | Archivo | Tratamiento |
 |---|---|
 | `config/settings_schema.json` | Es código. Merge normal. |
-| `config/settings_data.json`, diff **solo aditivo** | Automático |
-| `config/settings_data.json`, modifica o elimina claves | Revisión manual |
-| `templates/*.json` | Revisión manual |
-| `sections/*.json` (section groups) | Revisión manual |
+| `config/settings_data.json`, diff **aditivo** | Push automático |
+| `config/settings_data.json`, modifica/elimina claves | Push automático **+ anotación** de las claves tocadas |
+| `templates/*.json`, `sections/*.json` | Push automático; se listan como cambio estructural a mirar en el preview |
+| Cualquier archivo con **conflicto de git** | Único caso que escala a developer (PR) |
 
 Para shippear un setting nuevo alcanza con mergear `settings_schema.json`:
 Shopify usa el `default` declarado cuando la clave no existe en
 `settings_data.json`.
+
+Detalle completo y justificación en `docs/DESIGN.md §5`.
 
 ---
 

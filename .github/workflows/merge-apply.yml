@@ -1,0 +1,264 @@
+name: merge-apply
+
+# Etapa 4b: ejecuta el merge de verdad (politica B, DESIGN 5).
+#   - Merge limpio  -> push scopeado al theme destino (sin publicar) + anotacion
+#                      de diffs JSON destructivos. Verificacion visual por preview.
+#   - Conflicto git -> abre PR para resolucion manual (unico caso que escala a dev).
+# Nunca publica. Nunca escribe sobre el live (guard de rol antes del push).
+
+on:
+  workflow_dispatch:
+    inputs:
+      origen:
+        description: "Theme ID origen (X) — de donde sale el fix (ver themes.json)"
+        required: true
+      destino:
+        description: "Theme ID destino (A) — donde se aplica (ver themes.json)"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: registry
+  cancel-in-progress: false
+
+env:
+  SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+  SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm i -g @shopify/cli
+
+      - name: Resolver themes y branches
+        run: |
+          X="${{ inputs.origen }}"
+          A="${{ inputs.destino }}"
+          echo "inputs -> origen=[$X] destino=[$A]"
+
+          if [ -z "$X" ] || [ -z "$A" ]; then
+            echo "Falta origen y/o destino"; exit 1
+          fi
+          if [ "$X" = "$A" ]; then
+            echo "Origen y destino son el mismo theme (ambos = $X)"; exit 1
+          fi
+
+          git fetch origin
+          git show origin/main:themes.json > /tmp/registry.json 2>/dev/null \
+            || { echo "No hay themes.json en main"; exit 1; }
+
+          BRANCH_X=$(jq -r --arg id "$X" '.[$id].branch // empty' /tmp/registry.json)
+          BRANCH_A=$(jq -r --arg id "$A" '.[$id].branch // empty' /tmp/registry.json)
+          if [ -z "$BRANCH_X" ]; then echo "El origen $X no esta registrado"; exit 1; fi
+          if [ -z "$BRANCH_A" ]; then echo "El destino $A no esta registrado"; exit 1; fi
+
+          echo "X=$X"               >> "$GITHUB_ENV"
+          echo "A=$A"               >> "$GITHUB_ENV"
+          echo "BRANCH_X=$BRANCH_X" >> "$GITHUB_ENV"
+          echo "BRANCH_A=$BRANCH_A" >> "$GITHUB_ENV"
+
+      - name: Guard — destino no puede ser el live
+        run: |
+          ROLE_A=$(shopify theme list --json \
+            | jq -r --argjson id "$A" '.[] | select(.id == $id) | .role')
+          echo "Rol destino: ${ROLE_A:-desconocido}"
+          echo "ROLE_A=${ROLE_A:-desconocido}" >> "$GITHUB_ENV"
+
+          # Lista blanca: cualquier valor que no sea unpublished aborta.
+          if [ "$ROLE_A" != "unpublished" ]; then
+            echo "ABORTADO: destino $A tiene rol '$ROLE_A' (se esperaba unpublished)"
+            exit 1
+          fi
+
+      - name: Configurar git
+        run: |
+          git config user.name "theme-merge"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Pull del origen (X) y push de su branch
+        run: |
+          git fetch origin "$BRANCH_X"
+          git checkout -B "$BRANCH_X" "origin/$BRANCH_X"
+          shopify theme pull --theme "$X" --force --path .
+          git add -A
+          git commit -m "merge-apply: pull de origen $X" || echo "origen sin cambios"
+          git push origin "$BRANCH_X"
+
+      - name: Pull del destino (A) sobre su branch
+        run: |
+          git fetch origin "$BRANCH_A"
+          git checkout -B "$BRANCH_A" "origin/$BRANCH_A"
+          shopify theme pull --theme "$A" --force --path .
+          git add -A
+          git commit -m "merge-apply: pull de destino $A" || echo "destino sin cambios"
+
+          # Estado del destino previo al merge: base para clasificar el diff JSON
+          # y para calcular los archivos que el merge introduce.
+          echo "PRE_A=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          if [ -f config/settings_data.json ]; then
+            cp config/settings_data.json /tmp/old_settings.json
+          fi
+
+      - name: Merge
+        run: |
+          git checkout "$BRANCH_A"
+          if git merge --no-ff "$BRANCH_X" -m "merge: $BRANCH_X -> $BRANCH_A"; then
+            echo "RESULT=clean" >> "$GITHUB_ENV"
+          else
+            echo "RESULT=conflict" >> "$GITHUB_ENV"
+            git merge --abort
+          fi
+
+      # ---------- camino conflicto: PR, sin tocar Shopify ----------
+      - name: Conflicto — abrir PR
+        if: env.RESULT == 'conflict'
+        run: |
+          git push origin "$BRANCH_A"
+
+          PR_URL=$(gh pr create \
+            --base "$BRANCH_A" --head "$BRANCH_X" \
+            --title "merge: $BRANCH_X -> $BRANCH_A (conflicto)" \
+            --body "Merge automatico con conflicto de git. Resolucion manual (developer). Origen $X -> destino $A." \
+            2>/dev/null) \
+            || PR_URL=$(gh pr view "$BRANCH_X" --json url -q .url 2>/dev/null) \
+            || PR_URL=""
+
+          echo "PR_URL=$PR_URL" >> "$GITHUB_ENV"
+          echo "Conflicto: PR -> ${PR_URL:-'(no se pudo crear/ubicar el PR)'}"
+
+      # ---------- camino limpio: push scopeado a Shopify ----------
+      - name: Limpio — archivos del merge
+        if: env.RESULT == 'clean'
+        run: |
+          FILES=$(git diff --name-only "$PRE_A" HEAD \
+            | grep -E '^(assets|blocks|config|layout|locales|sections|snippets|templates)/' \
+            || true)
+
+          if [ -z "$FILES" ]; then
+            echo "El merge no toca archivos de theme"
+            echo "PUSHED=0" >> "$GITHUB_ENV"
+          else
+            printf '%s\n' "$FILES" > /tmp/files.txt
+            echo "$FILES"
+            echo "ONLY=$(echo "$FILES" | sed 's/^/--only /' | tr '\n' ' ')" >> "$GITHUB_ENV"
+            echo "HAS_FILES=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Limpio — re-check de rol y push a Shopify
+        if: env.RESULT == 'clean' && env.HAS_FILES == '1'
+        run: |
+          # El rol se re-consulta inmediatamente antes del push (DESIGN 6.1):
+          # entre el guard inicial y aca alguien pudo publicar el theme.
+          ROLE=$(shopify theme list --json \
+            | jq -r --argjson id "$A" '.[] | select(.id == $id) | .role')
+          echo "Rol destino (pre-push): $ROLE"
+          if [ "$ROLE" != "unpublished" ]; then
+            echo "ABORTADO: destino $A tiene rol '$ROLE' (se esperaba unpublished)"
+            exit 1
+          fi
+
+          shopify theme push --theme "$A" --force --path . $ONLY
+          echo "PUSHED=1" >> "$GITHUB_ENV"
+
+      - name: Limpio — persistir branch y last_push
+        if: env.RESULT == 'clean'
+        run: |
+          git push origin "$BRANCH_A"
+
+          if [ "${PUSHED:-0}" = "1" ]; then
+            git fetch origin main
+            git checkout -B main origin/main
+            jq --arg id "$A" \
+               --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+               '.[$id].last_push = $ts' themes.json > tmp.json && mv tmp.json themes.json
+            if ! git diff --quiet themes.json; then
+              git add themes.json
+              git commit -m "merge push: $A"
+              git pull --rebase origin main
+              git push origin main
+            fi
+          fi
+
+      - name: Limpio — clasificar diff JSON (anotacion, DESIGN 5.1)
+        if: env.RESULT == 'clean' && env.HAS_FILES == '1'
+        run: |
+          : > /tmp/destructive.txt
+          : > /tmp/structural.txt
+
+          # settings_data.json: claves del merchant modificadas o eliminadas.
+          if grep -q '^config/settings_data\.json$' /tmp/files.txt \
+             && [ -f /tmp/old_settings.json ] && [ -f config/settings_data.json ]; then
+            git show "$BRANCH_A:config/settings_data.json" > /tmp/new_settings.json 2>/dev/null \
+              || cp config/settings_data.json /tmp/new_settings.json
+            jq -n \
+              --slurpfile o /tmp/old_settings.json \
+              --slurpfile n /tmp/new_settings.json '
+              ($o[0]) as $o | ($n[0]) as $n
+              | [ $o | paths(scalars) ]
+              | map(select( ($o|getpath(.)) != ($n|getpath(.)) ))
+              | map(map(tostring) | join("."))
+              | .[]' > /tmp/destructive.txt 2>/dev/null || true
+          fi
+
+          # templates/sections JSON: cambio estructural, pista para el preview.
+          grep -E '^(templates/.*\.json|sections/.*\.json)$' /tmp/files.txt \
+            > /tmp/structural.txt || true
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Merge apply"
+            echo ""
+            echo "| | Theme | Branch |"
+            echo "|---|---|---|"
+            echo "| Origen (X)  | \`${X:-?}\` | \`${BRANCH_X:-?}\` |"
+            echo "| Destino (A) | \`${A:-?}\` | \`${BRANCH_A:-?}\` |"
+            echo ""
+
+            case "${RESULT:-none}" in
+              conflict)
+                echo "**Resultado: ⚠️ conflicto de git** — escala a developer."
+                if [ -n "${PR_URL:-}" ]; then echo ""; echo "PR: ${PR_URL}"; fi
+                ;;
+              clean)
+                if [ "${PUSHED:-0}" = "1" ]; then
+                  echo "**Resultado: ✅ merge limpio, pusheado al destino** (sin publicar)."
+                  echo ""
+                  echo "**[Abrir preview para verificar](https://${{ vars.SHOP_DOMAIN }}/?preview_theme_id=${A})**"
+                else
+                  echo "**Resultado: ✅ merge limpio** — sin archivos de theme para pushear."
+                fi
+                if [ -s /tmp/files.txt ]; then
+                  echo ""; echo "**Archivos pusheados:**"; echo '```'; cat /tmp/files.txt; echo '```'
+                fi
+                if [ -s /tmp/destructive.txt ]; then
+                  echo ""
+                  echo "> ⚠️ **Claves del merchant modificadas/eliminadas en \`settings_data.json\`.**"
+                  echo "> Revisar estas rutas en el preview:"
+                  echo '```'; head -n 30 /tmp/destructive.txt; echo '```'
+                fi
+                if [ -s /tmp/structural.txt ]; then
+                  echo ""; echo "**JSON estructural a mirar en el preview:**"
+                  echo '```'; cat /tmp/structural.txt; echo '```'
+                fi
+                ;;
+              *)
+                echo "**Resultado: el flujo no llego al merge** — ver logs del job."
+                ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"

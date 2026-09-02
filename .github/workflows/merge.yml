@@ -40,9 +40,14 @@ jobs:
         run: |
           X="${{ inputs.origen }}"
           A="${{ inputs.destino }}"
+          echo "inputs -> origen=[$X] destino=[$A]"
+
+          if [ -z "$X" ] || [ -z "$A" ]; then
+            echo "Falta origen y/o destino"; exit 1
+          fi
 
           if [ "$X" = "$A" ]; then
-            echo "Origen y destino son el mismo theme"; exit 1
+            echo "Origen y destino son el mismo theme (ambos = $X)"; exit 1
           fi
 
           git show origin/main:themes.json > /tmp/registry.json 2>/dev/null \
