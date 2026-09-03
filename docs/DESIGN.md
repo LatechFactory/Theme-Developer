@@ -182,7 +182,7 @@ Los cambios hechos desde el theme editor **no** disparan este flujo. Se incorpor
    - El pull de X trae todo lo que difiere del live: el trabajo hecho por editor (imágenes, settings, contenido) además de lo ya deployado. Ese es el delta del fix.
    - El pull de A captura el drift del merchant en el destino, y es lo que hace correcto el three-way merge.
 3. `git merge branch-X` sobre `branch-A`.
-4. **Si hay conflicto de git:** se pushean `branch-A` y `branch-X` y se abre un PR. Resolución manual — es el **único** caso que escala a un developer.
+4. **Si hay conflicto de git:** se pushean `branch-A` y `branch-X` y se entrega un **link de compare** para abrir el PR con un click. Resolución manual — es el **único** caso que escala a un developer. No se crea el PR automáticamente: la org bloquea la creación de PRs con el `GITHUB_TOKEN` (ver nota abajo).
 5. **Si el merge es limpio:** se commitea sobre `branch-A`. No hay gate que bloquee. Los diffs JSON destructivos se **anotan** (§5) pero no frenan el push.
 6. Se consulta el `role` de theme A **inmediatamente antes del push**. Se aborta salvo que sea `unpublished` (§6.1).
 7. `shopify theme push --theme <A> --only <archivos del merge>`.

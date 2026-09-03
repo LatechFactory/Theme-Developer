@@ -3,7 +3,9 @@ name: merge-apply
 # Etapa 4b: ejecuta el merge de verdad (politica B, DESIGN 5).
 #   - Merge limpio  -> push scopeado al theme destino (sin publicar) + anotacion
 #                      de diffs JSON destructivos. Verificacion visual por preview.
-#   - Conflicto git -> abre PR para resolucion manual (unico caso que escala a dev).
+#   - Conflicto git -> pushea branches y entrega link de compare para abrir el PR
+#                      con un click (unico caso que escala a dev). No usa gh: la org
+#                      bloquea la creacion de PRs con el GITHUB_TOKEN.
 # Nunca publica. Nunca escribe sobre el live (guard de rol antes del push).
 
 on:
@@ -18,7 +20,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: registry
@@ -27,7 +28,6 @@ concurrency:
 env:
   SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
   SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   apply:
@@ -123,22 +123,17 @@ jobs:
             git merge --abort
           fi
 
-      # ---------- camino conflicto: PR, sin tocar Shopify ----------
-      - name: Conflicto — abrir PR
+      # ---------- camino conflicto: handoff por link de compare, sin tocar Shopify ----------
+      # No se crea el PR con el GITHUB_TOKEN (la org lo tiene bloqueado). Se pushean
+      # ambas branches y se entrega el link de compare para abrir el PR con un click.
+      - name: Conflicto — push y link de compare
         if: env.RESULT == 'conflict'
         run: |
           git push origin "$BRANCH_A"
 
-          PR_URL=$(gh pr create \
-            --base "$BRANCH_A" --head "$BRANCH_X" \
-            --title "merge: $BRANCH_X -> $BRANCH_A (conflicto)" \
-            --body "Merge automatico con conflicto de git. Resolucion manual (developer). Origen $X -> destino $A." \
-            2>/dev/null) \
-            || PR_URL=$(gh pr view "$BRANCH_X" --json url -q .url 2>/dev/null) \
-            || PR_URL=""
-
-          echo "PR_URL=$PR_URL" >> "$GITHUB_ENV"
-          echo "Conflicto: PR -> ${PR_URL:-'(no se pudo crear/ubicar el PR)'}"
+          COMPARE="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BRANCH_A}...${BRANCH_X}?expand=1"
+          echo "COMPARE=$COMPARE" >> "$GITHUB_ENV"
+          echo "Conflicto. Branches pusheadas. Abrir PR: $COMPARE"
 
       # ---------- camino limpio: push scopeado a Shopify ----------
       - name: Limpio — archivos del merge
@@ -233,7 +228,10 @@ jobs:
             case "${RESULT:-none}" in
               conflict)
                 echo "**Resultado: ⚠️ conflicto de git** — escala a developer."
-                if [ -n "${PR_URL:-}" ]; then echo ""; echo "PR: ${PR_URL}"; fi
+                if [ -n "${COMPARE:-}" ]; then
+                  echo ""
+                  echo "Branches pusheadas. **[Abrir PR para resolver el conflicto](${COMPARE})**"
+                fi
                 ;;
               clean)
                 if [ "${PUSHED:-0}" = "1" ]; then

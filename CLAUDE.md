@@ -149,6 +149,14 @@ su copia local nunca la tiene.
 **`git pull --rebase` antes de cada push a `main`**, porque `mirror.yml`
 puede haber commiteado durante el job.
 
+**La org bloquea que Actions cree PRs.** El `GITHUB_TOKEN` no puede correr
+`gh pr create` (da 403) porque `LatechFactory` fuerza "Read repository
+contents" y desactiva "Allow GitHub Actions to create and approve pull
+requests" a nivel org — el repo lo ve grisado, no lo puede cambiar. Por eso
+`merge-apply.yml` en el camino de conflicto **no crea el PR**: pushea las
+branches y entrega un link de `compare` para abrirlo con un click. Para
+auto-PR habría que habilitarlo en la org, o usar un PAT/App token como secret.
+
 ---
 
 ## Invariantes del diseño
