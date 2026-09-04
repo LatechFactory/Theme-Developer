@@ -3,8 +3,8 @@
 // Verifica el HMAC de Shopify y dispara un repository_dispatch en GitHub
 // (event_type: theme-created) que corre adopt-theme.yml.
 //
-// En modo raw, el body llega base64 en args.__ow_body y los headers (en
-// minuscula) en args.__ow_headers. El HMAC se calcula sobre los bytes crudos.
+// En modo raw, DO pasa el body como string de texto en args.__ow_body y los
+// headers (en minuscula) en args.__ow_headers. El HMAC se calcula sobre esos bytes.
 
 const crypto = require("crypto");
 
@@ -15,7 +15,8 @@ async function main(args) {
 
   const headers = args.__ow_headers || {};
   const hmacHeader = headers["x-shopify-hmac-sha256"] || "";
-  const raw = Buffer.from(args.__ow_body || "", "base64");
+  // DO (web: raw) pasa el body como string de texto en __ow_body, no base64.
+  const raw = Buffer.from(args.__ow_body || "", "utf8");
 
   if (!validHmac(process.env.SHOPIFY_CLIENT_SECRET, raw, hmacHeader)) {
     return reply(401, "Invalid HMAC");
