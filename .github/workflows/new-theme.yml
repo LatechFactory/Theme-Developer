@@ -132,5 +132,5 @@ jobs:
             echo "### Theme creado"
             echo "- **$TITLE** (\`$THEME_ID\`)"
             echo "- Branch: \`$BRANCH\`"
-            echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?preview_theme_id=$THEME_ID)"
+            echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?_ab=0&_fd=0&_sc=1&preview_theme_id=$THEME_ID)"
           } >> "$GITHUB_STEP_SUMMARY"

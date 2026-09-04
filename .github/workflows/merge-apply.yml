@@ -237,7 +237,7 @@ jobs:
                 if [ "${PUSHED:-0}" = "1" ]; then
                   echo "**Resultado: ✅ merge limpio, pusheado al destino** (sin publicar)."
                   echo ""
-                  echo "**[Abrir preview para verificar](https://${{ vars.SHOP_DOMAIN }}/?preview_theme_id=${A})**"
+                  echo "**[Abrir preview para verificar](https://${{ vars.SHOP_DOMAIN }}/?_ab=0&_fd=0&_sc=1&preview_theme_id=${A})**"
                 else
                   echo "**Resultado: ✅ merge limpio** — sin archivos de theme para pushear."
                 fi
