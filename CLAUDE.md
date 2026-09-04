@@ -20,9 +20,10 @@ operativo: estado actual, convenciones y trampas ya descubiertas.
 | 2 — `new-theme.yml`, alta de theme | Hecho |
 | 3 — `push-on-commit.yml`, deploy + guard de rol | Hecho, guard validado en Actions |
 | 4a — Merge dry run (`merge.yml`) | Hecho, validado en Actions |
-| 4b — Merge apply (`merge-apply.yml`, política B) | Hecho, sin probar en Actions |
+| 4b — Merge apply (`merge-apply.yml`, política B) | Hecho, validado en Actions (limpio + conflicto) |
 | 5 — Gate de JSON | Absorbido en 4b como anotación (política B) |
-| 6 — Reaper | **Siguiente** |
+| Alta manual (`adopt-theme.yml` + webhook) | Hecho; `workflow_dispatch` por probar, endpoint DO por desplegar |
+| 6 — Reaper | Último (por pedido del usuario) |
 
 **Guard de rol validado:** se publicó un theme a propósito y `push-on-commit`
 abortó en "Verificar que no sea el live" con `rol 'live'` → exit 1, saltando
@@ -31,10 +32,16 @@ push y `last_push`. La lista blanca (`role == "unpublished"`) funciona.
 **4a validado:** dry run `191025840442` → `191028625722` dio merge limpio,
 trajo `templates/index.json` y lo marcó como JSON a revisar.
 
-**Pendiente inmediato:** probar `merge-apply.yml` en los dos caminos —
-(a) merge limpio: verificar push al destino, preview link y anotación de
-`settings_data.json`; (b) conflicto de git: verificar que abre PR y **no**
-pushea a Shopify.
+**4b validado:** merge limpio pushea al destino + preview; conflicto pushea las
+branches y entrega link de `compare` (la org bloquea auto-PR con `GITHUB_TOKEN`).
+
+**Alta manual:** el webhook `themes/create` no le pega directo a Actions →
+un endpoint DigitalOcean Function (`webhook/`) verifica HMAC y dispara `repository_dispatch`.
+Se adopta **todo sin filtro**; `adopt-theme.yml` es idempotente por ID y saltea
+el live. Camino explícito por `workflow_dispatch` con el theme ID.
+
+**Pendiente inmediato:** probar `adopt-theme.yml` por `workflow_dispatch` con un
+theme creado a mano; después desplegar el endpoint DO y registrar el webhook.
 
 ---
 

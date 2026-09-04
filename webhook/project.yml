@@ -1,0 +1,21 @@
+# DigitalOcean Functions — endpoint del webhook themes/create.
+#
+# Deploy:  doctl serverless deploy webhook   (con un .env local, ver README)
+# URL:     doctl serverless functions get shopify/adopt --url
+#
+# Los secrets se interpolan desde un .env local al desplegar (no se commitean).
+
+parameters: {}
+
+packages:
+  - name: shopify
+    environment:
+      GH_REPO: LatechFactory/Theme-Developer
+      SHOPIFY_CLIENT_SECRET: ${SHOPIFY_CLIENT_SECRET}
+      GH_PAT: ${GH_PAT}
+    functions:
+      - name: adopt
+        runtime: "nodejs:18"
+        web: raw
+        limits:
+          timeout: 5000

@@ -147,14 +147,23 @@ Dos caminos que convergen en la misma estructura. En ambos, la branch nace de un
 
 **Alta manual** — un admin duplicó un theme desde el panel y va a trabajar ahí:
 
-1. Se detecta el theme por webhook `themes/create` o alta explícita, filtrando por convención de nombre.
+1. Se detecta el theme por webhook `themes/create` (o alta explícita por `workflow_dispatch`).
 2. `shopify theme pull --live`, commit sobre `main`.
 3. Crear la branch desde ese commit.
 4. Registrar en `themes.json` con `origin: manual`.
 
 En el caso manual **no se hace ningún pull del theme ni se commitea nada más**. La branch queda fijada en el estado del live y no se toca hasta el merge.
 
-> La convención de nombre (ej. `GYM-*`) es la que evita que cada duplicado exploratorio del merchant entre al sistema.
+**Implementación (`adopt-theme.yml`).** El webhook de Shopify no le pega directo
+a Actions; un endpoint intermedio (DigitalOcean Function, ver `webhook/`) verifica el
+HMAC y dispara un `repository_dispatch` que corre el workflow. El mismo workflow
+tiene `workflow_dispatch` para alta explícita pegando el theme ID.
+
+**Sin convención de nombre: se adopta todo.** Se decidió no filtrar por nombre.
+El workflow es idempotente por theme ID (saltea los ya registrados y el live),
+pero cualquier duplicado exploratorio del merchant entra al sistema. La
+contrapartida es más presión sobre el tope de 20 themes hasta que exista el
+reaper; la limpieza de lo adoptado de más es manual por ahora.
 
 ### 4.3 Cambios y deploy
 
@@ -393,9 +402,14 @@ El diseño es de un repo por tienda. Con varias tiendas, los workflows se duplic
 
 ### 7.11 Detección de themes nuevos
 
-El webhook `themes/create` dispara con cualquier duplicado. La convención de nombre (§4.2) filtra el ruido, pero depende de que quien crea el theme respete la convención.
+El webhook `themes/create` dispara con cualquier duplicado. Se decidió **no
+filtrar por convención de nombre**: se adopta todo (§4.2). La idempotencia por ID
+evita duplicar registros, pero no distingue un fix real de un duplicado
+exploratorio del merchant.
 
-*Refinamiento posible:* alta explícita desde la interfaz del sistema, en vez de detección automática. Menos mágico, más predecible.
+*Refinamiento posible:* si el ruido molesta, reintroducir un filtro por
+convención de nombre en `adopt-theme.yml`, o pasar a alta solo explícita
+(`workflow_dispatch`), que ya está implementada en el mismo workflow.
 
 ---
 

@@ -1,0 +1,178 @@
+name: adopt-theme
+
+# Alta manual (DESIGN 4.2): adopta un theme creado en el admin de Shopify.
+# Crea la branch desde el live actual y lo registra con origin: manual.
+# NO pulea el theme ni publica: la branch queda fijada en el estado del live.
+#
+# Disparadores:
+#   - repository_dispatch (theme-created): lo manda el endpoint del webhook
+#     themes/create, con client_payload.id (y .name).
+#   - workflow_dispatch: alta explicita pegando el theme ID (para probar sin
+#     el webhook, o para adoptar uno puntual a mano).
+
+on:
+  repository_dispatch:
+    types: [theme-created]
+  workflow_dispatch:
+    inputs:
+      theme_id:
+        description: "Theme ID a adoptar (ver admin de Shopify)"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: registry
+  cancel-in-progress: false
+
+env:
+  SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
+  SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
+
+jobs:
+  adopt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm i -g @shopify/cli
+
+      - name: Resolver theme ID
+        run: |
+          THEME_ID="${{ github.event.client_payload.id }}"
+          [ -z "$THEME_ID" ] && THEME_ID="${{ inputs.theme_id }}"
+
+          # Debe ser numerico (clave del registro y comparacion con .id via --argjson).
+          case "$THEME_ID" in
+            ''|*[!0-9]*) echo "Theme ID invalido: '$THEME_ID'"; exit 1 ;;
+          esac
+
+          echo "THEME_ID=$THEME_ID" >> "$GITHUB_ENV"
+          echo "Theme a adoptar: $THEME_ID"
+
+      - name: Saltar si ya esta registrado
+        run: |
+          git show origin/main:themes.json > /tmp/reg.json 2>/dev/null || echo '{}' > /tmp/reg.json
+          if [ "$(jq -r --arg id "$THEME_ID" 'has($id)' /tmp/reg.json)" = "true" ]; then
+            echo "El theme $THEME_ID ya esta en themes.json — nada que hacer."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Resolver nombre y rol
+        if: env.SKIP != '1'
+        run: |
+          ROW=$(shopify theme list --json \
+            | jq -c --argjson id "$THEME_ID" '.[] | select(.id == $id)')
+
+          if [ -z "$ROW" ]; then
+            echo "El theme $THEME_ID no existe en la tienda (¿borrado?). Se ignora."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          ROLE=$(echo "$ROW" | jq -r '.role')
+          NAME=$(echo "$ROW" | jq -r '.name')
+          echo "Nombre: $NAME | Rol: $ROLE"
+
+          # Nunca adoptar el live como theme de trabajo (invariante de seguridad).
+          if [ "$ROLE" = "live" ]; then
+            echo "El theme $THEME_ID es el live; no se adopta."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          echo "TITLE=$NAME" >> "$GITHUB_ENV"
+
+      - name: Definir branch
+        if: env.SKIP != '1'
+        run: |
+          SLUG=$(echo "$TITLE" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed 's/[^a-z0-9]\+/-/g; s/^-//; s/-$//')
+          [ -z "$SLUG" ] && SLUG="theme-$THEME_ID"
+
+          BRANCH="theme/$SLUG"
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            # Colision de nombre: desambiguar con el ID (el mapeo real es por ID).
+            BRANCH="theme/$SLUG-$THEME_ID"
+          fi
+
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+          echo "Branch: $BRANCH"
+
+      - name: Configurar git
+        if: env.SKIP != '1'
+        run: |
+          git config user.name "theme-merge"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Refrescar espejo del live
+        if: env.SKIP != '1'
+        run: |
+          shopify theme pull --live --force --path .
+          git add -A
+          if git diff --cached --quiet; then
+            echo "main ya estaba al dia"
+          else
+            git commit -m "mirror: previo a adoptar $THEME_ID"
+            git pull --rebase origin main
+            git push origin main
+          fi
+
+      - name: Crear la branch desde el live
+        if: env.SKIP != '1'
+        run: |
+          git checkout -B "$BRANCH"
+          git push -u origin "$BRANCH"
+
+      - name: Registrar en themes.json
+        if: env.SKIP != '1'
+        run: |
+          git checkout main
+          git pull --rebase origin main
+
+          [ -f themes.json ] || echo '{}' > themes.json
+
+          # Idempotencia final: si otra corrida lo registro mientras tanto, no pisar.
+          if [ "$(jq -r --arg id "$THEME_ID" 'has($id)' themes.json)" = "true" ]; then
+            echo "El theme $THEME_ID ya fue registrado por otra corrida."
+            exit 0
+          fi
+
+          jq --arg id "$THEME_ID" \
+             --arg branch "$BRANCH" \
+             --arg title "$TITLE" \
+             --arg created "$(date -u +%Y-%m-%d)" \
+             '.[$id] = {
+                branch: $branch,
+                title: $title,
+                ticket: "",
+                origin: "manual",
+                created: $created,
+                last_push: null,
+                status: "open"
+              }' themes.json > tmp.json && mv tmp.json themes.json
+
+          git add themes.json
+          git commit -m "registro (manual): $TITLE ($THEME_ID)"
+          git pull --rebase origin main
+          git push origin main
+
+      - name: Resumen
+        if: env.SKIP != '1'
+        run: |
+          {
+            echo "### Theme adoptado (alta manual)"
+            echo "- **$TITLE** (\`$THEME_ID\`)"
+            echo "- Branch: \`$BRANCH\`"
+            echo "- Origin: \`manual\`"
+            echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?_ab=0&_fd=0&_sc=1&preview_theme_id=$THEME_ID)"
+          } >> "$GITHUB_STEP_SUMMARY"
