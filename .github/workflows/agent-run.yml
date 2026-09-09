@@ -10,7 +10,9 @@ name: agent-run
 # Fase 1: disparo manual (pegás la tarea). Fase 2 (futuro) suma repository_dispatch
 # desde el webhook de Jira/Trello + Agent SDK. Ver docs/AI-AGENT.md.
 #
-# PRERREQUISITO: cargar el secret ANTHROPIC_API_KEY en el repo.
+# PRERREQUISITO: cargar el secret CLAUDE_CODE_OAUTH_TOKEN en el repo (token de
+# suscripción, sk-ant-oat01-, de `claude setup-token`). Si en el futuro se usa
+# una API key de la consola (sk-ant-api03-), cambiar a anthropic_api_key.
 
 on:
   workflow_dispatch:
@@ -57,7 +59,9 @@ jobs:
         # Pinear la versión actual y verificar los inputs contra el README de la action.
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # El token es de suscripción (sk-ant-oat01-, de `claude setup-token`),
+          # no una API key → va en claude_code_oauth_token, no en anthropic_api_key.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Fijar el modelo: el default (claude-opus-5[1m]) usa la ventana de 1M,
           # un beta que la API key puede no tener → falla con is_error y 0 uso.
