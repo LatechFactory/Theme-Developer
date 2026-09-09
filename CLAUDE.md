@@ -6,7 +6,8 @@ fuentes: el theme editor del admin, un IDE, y agentes de código.
 Repo: `LatechFactory/Theme-Developer`
 Tienda de desarrollo: `develop-latech.myshopify.com`
 
-El diseño completo está en `docs/DESIGN.md`. Este archivo es el contexto
+El diseño completo está en `docs/DESIGN.md`. La propuesta de UI embebida (aún
+no implementada) está en `docs/EMBEDDED-UI.md`. Este archivo es el contexto
 operativo: estado actual, convenciones y trampas ya descubiertas.
 
 ---
@@ -22,8 +23,8 @@ operativo: estado actual, convenciones y trampas ya descubiertas.
 | 4a — Merge dry run (`merge.yml`) | Hecho, validado en Actions |
 | 4b — Merge apply (`merge-apply.yml`, política B) | Hecho, validado en Actions (limpio + conflicto) |
 | 5 — Gate de JSON | Absorbido en 4b como anotación (política B) |
-| Alta manual (`adopt-theme.yml` + webhook) | Hecho; `workflow_dispatch` por probar, endpoint DO por desplegar |
-| 6 — Reaper | Último (por pedido del usuario) |
+| Alta manual (`adopt-theme.yml` + webhook) | Hecho, validado end-to-end (webhook DO → adopt-theme) |
+| 6 — Reaper | **Siguiente** (era lo último; ya es lo único del core que falta) |
 
 **Guard de rol validado:** se publicó un theme a propósito y `push-on-commit`
 abortó en "Verificar que no sea el live" con `rol 'live'` → exit 1, saltando
@@ -35,13 +36,19 @@ trajo `templates/index.json` y lo marcó como JSON a revisar.
 **4b validado:** merge limpio pushea al destino + preview; conflicto pushea las
 branches y entrega link de `compare` (la org bloquea auto-PR con `GITHUB_TOKEN`).
 
-**Alta manual:** el webhook `themes/create` no le pega directo a Actions →
-un endpoint DigitalOcean Function (`webhook/`) verifica HMAC y dispara `repository_dispatch`.
-Se adopta **todo sin filtro**; `adopt-theme.yml` es idempotente por ID y saltea
-el live. Camino explícito por `workflow_dispatch` con el theme ID.
+**Alta manual (validada):** el webhook `themes/create` no le pega directo a
+Actions → un endpoint DigitalOcean Function (`webhook/`) verifica HMAC y dispara
+`repository_dispatch`. Se adopta **todo sin filtro**; `adopt-theme.yml` es
+idempotente por ID y saltea el live. Camino explícito por `workflow_dispatch`
+con el theme ID. Firma del webhook = **client secret** de la app (no un secret
+aparte). Probado: duplicar un theme en el admin crea la branch automáticamente.
 
-**Pendiente inmediato:** probar `adopt-theme.yml` por `workflow_dispatch` con un
-theme creado a mano; después desplegar el endpoint DO y registrar el webhook.
+**Trampa de DO Functions (`web: raw`):** el body llega como **texto plano** en
+`__ow_body`, NO base64. Hay que calcular el HMAC sobre `Buffer.from(body,"utf8")`.
+Tratarlo como base64 corrompe el body y el HMAC nunca matchea (401 en silencio).
+
+**Pendiente inmediato:** eliminar la suscripción de webhook a `webhook.site`
+(quedó del debug), rotar el admin token expuesto, y arrancar el Reaper (etapa 6).
 
 ---
 

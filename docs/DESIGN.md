@@ -1,12 +1,15 @@
 # Sistematización de modificaciones sobre themes de Shopify
 
-Documento de diseño. Última revisión: 2026-09-02 (v3).
+Documento de diseño. Última revisión: 2026-09-09 (v4).
 
-> v3 sincroniza este documento con lo ya implementado en los workflows y con
-> los hechos operativos de `CLAUDE.md`: autenticación por Theme Access token
-> (no custom app), valor real del `role` del theme live (`live`, no `main`),
+> v3 sincronizó el documento con lo implementado: autenticación por Theme Access
+> token (no custom app), valor real del `role` del theme live (`live`, no `main`),
 > guard por lista blanca, lógica inline en los workflows (sin `scripts/`), e
 > inclusión del directorio `blocks/`.
+>
+> v4 actualiza la estructura (§3.1) con los workflows reales (`adopt-theme`,
+> `merge`, `merge-apply`, `webhook/`) y marca en §4.6 que el reaper ya es
+> prioritario y que falta definir quién setea `status: closed`.
 
 ---
 
@@ -68,19 +71,25 @@ Un repo de GitHub por tienda.
 tienda-theme/
 ├── .github/workflows/
 │   ├── mirror.yml           # cron diario: espejo del theme live      [hecho]
-│   ├── new-theme.yml        # alta de theme en el sistema             [hecho]
+│   ├── new-theme.yml        # alta por sistema                        [hecho]
+│   ├── adopt-theme.yml      # alta manual (webhook / dispatch)        [hecho]
 │   ├── push-on-commit.yml   # deploy de branch a su theme             [hecho]
-│   ├── merge.yml            # operación de merge                  [pendiente]
+│   ├── merge.yml            # merge dry run (4a)                      [hecho]
+│   ├── merge-apply.yml      # merge apply, política B (4b)           [hecho]
 │   └── reaper.yml           # limpieza de themes y branches       [pendiente]
+├── webhook/                 # endpoint DO del webhook themes/create   [hecho]
+├── docs/                    # DESIGN.md, EMBEDDED-UI.md
 ├── themes.json              # registro del sistema
 └── assets/ blocks/ config/ layout/ locales/ sections/ snippets/ templates/
 ```
 
 La lógica de apoyo (cliente de la API, resolución de roles e IDs, lectura y
-escritura de `themes.json`, y a futuro el gate de JSON) va **inline en cada
-workflow** con `jq` y bash, no en un directorio `scripts/` separado. Se
+escritura de `themes.json`, la anotación de diffs JSON del merge) va **inline en
+cada workflow** con `jq` y bash, no en un directorio `scripts/` separado. Se
 prefirió mantener cada workflow autocontenido mientras la lógica sea acotada;
-si crece, se puede extraer a `scripts/`.
+si crece, se puede extraer a `scripts/`. La única pieza fuera de Actions es
+`webhook/` (endpoint DigitalOcean que traduce el webhook `themes/create` a un
+`repository_dispatch`, §4.2).
 
 `blocks/` (theme blocks de Online Store 2.0) es parte del theme y del alcance
 de los pushes, igual que el resto de los directorios de tema.
@@ -207,7 +216,9 @@ Fuera del sistema. El usuario publica desde el admin de Shopify cuando lo consid
 
 Cierra branches y borra themes de entradas con `status: closed` y antigüedad mayor a N días.
 
-**Necesario, no opcional:** Shopify limita a 20 themes por tienda. Sin limpieza, el sistema se bloquea solo.
+**Necesario, no opcional:** Shopify limita a 20 themes por tienda. Sin limpieza, el sistema se bloquea solo. Con el alta manual adoptando todo sin filtro (§4.2), la presión sobre ese tope es mayor, así que el reaper deja de ser lo último y pasa a ser prioritario.
+
+**Pieza pendiente de definir — quién setea `status: closed`.** Hoy nada lo hace: como publicar es manual y externo, el sistema no puede detectar solo que un fix ya se shippeó. El reaper necesita un compañero que marque el cierre. Opciones a decidir al implementarlo: un `close-theme` explícito (workflow_dispatch con el theme ID) y/o cierre automático por inactividad (`last_push` viejo). Hasta que exista, el reaper no tiene entradas `closed` que limpiar.
 
 ---
 
