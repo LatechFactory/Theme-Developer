@@ -77,11 +77,13 @@ jobs:
             - Editá SOLO archivos de theme: assets, blocks, config, layout,
               locales, sections, snippets, templates. No toques .github/,
               webhook/, docs/, ni themes.json.
-            - Preferí cambios en Liquid, CSS/JS de assets, o
-              config/settings_schema.json (usando defaults). Evitá tocar
-              config/settings_data.json y templates/*.json (JSON generado por
-              máquina) salvo que sea imprescindible.
-            - Mantené los cambios acotados a la tarea; sin refactors amplios.
+            - Editá el/los archivo/s donde viva el cambio, sea cual sea su tipo.
+              El contenido/copy/settings del merchant (títulos, textos, orden de
+              secciones) suele estar en templates/*.json y config/settings_data.json;
+              el comportamiento y los estilos, en Liquid y assets. Editá el que
+              corresponda, sin preferencia por tipo de archivo.
+            - Mantené el cambio acotado a lo que pide el ticket: sin refactors ni
+              tocar cosas no relacionadas.
             - Corré `shopify theme check` y asegurate de NO introducir errores
               nuevos.
             - NO hagas git commit ni push: de eso se encarga el workflow.
