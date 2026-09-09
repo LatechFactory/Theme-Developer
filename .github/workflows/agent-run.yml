@@ -1,0 +1,112 @@
+name: agent-run
+
+# Agente de IA que resuelve una tarea sobre el theme (Fase 1, ver docs/AI-AGENT.md).
+#
+# Flujo: crea un theme+branch (reusa new-theme) → el agente edita los archivos
+# del theme resolviendo la tarea → se commitea/pushea a la branch → push-on-commit
+# deploya el diff y da el preview. El agente NO habla con Shopify: este job no
+# lleva el Theme Access token (frontera de seguridad).
+#
+# Fase 1: disparo manual (pegás la tarea). Fase 2 (futuro) suma repository_dispatch
+# desde el webhook de Jira/Trello + Agent SDK. Ver docs/AI-AGENT.md.
+#
+# PRERREQUISITO: cargar el secret ANTHROPIC_API_KEY en el repo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Nombre corto para la branch/theme (ej: cart-qty)"
+        required: true
+      task:
+        description: "La tarea a resolver (título + descripción + criterios)"
+        required: true
+      ticket:
+        description: "Ticket asociado (opcional)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  # (1) crea theme+branch nacido del live, reusando new-theme.
+  create:
+    uses: ./.github/workflows/new-theme.yml
+    with:
+      name: ${{ inputs.name }}
+      ticket: ${{ inputs.ticket }}
+    secrets: inherit
+
+  # (2) el agente trabaja sobre esa branch. Sin token de Shopify acá.
+  agent:
+    needs: create
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.create.outputs.branch }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - run: npm i -g @shopify/cli        # para `shopify theme check` (linter local, sin auth)
+
+      - name: Resolver la tarea con el agente
+        # Pinear la versión actual y verificar los inputs contra el README de la action.
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Sos un agente que resuelve tareas sobre un theme de Shopify editando
+            sus archivos. Leé el CLAUDE.md del repo para las convenciones.
+
+            TAREA
+            ${{ inputs.task }}
+
+            REGLAS
+            - Editá SOLO archivos de theme: assets, blocks, config, layout,
+              locales, sections, snippets, templates. No toques .github/,
+              webhook/, docs/, ni themes.json.
+            - Preferí cambios en Liquid, CSS/JS de assets, o
+              config/settings_schema.json (usando defaults). Evitá tocar
+              config/settings_data.json y templates/*.json (JSON generado por
+              máquina) salvo que sea imprescindible.
+            - Mantené los cambios acotados a la tarea; sin refactors amplios.
+            - Corré `shopify theme check` y asegurate de NO introducir errores
+              nuevos.
+            - NO hagas git commit ni push: de eso se encarga el workflow.
+            - Si la tarea es ambigua, hacé el cambio más razonable y dejá claro
+              qué asumiste.
+
+            Al terminar, resumí qué archivos cambiaste y por qué.
+
+      - name: Commitear y pushear el trabajo del agente
+        run: |
+          git config user.name "theme-agent"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "El agente no dejó cambios en el working tree"
+          else
+            git commit -m "agent: ${{ inputs.name }}"
+          fi
+
+          # push del trabajo (dispara push-on-commit → deploy → preview).
+          # HEAD:<branch> funciona esté o no en detached HEAD.
+          git push origin "HEAD:${{ needs.create.outputs.branch }}"
+
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "### Agente ejecutado"
+            echo "- Theme: \`${{ needs.create.outputs.theme_id }}\`"
+            echo "- Branch: \`${{ needs.create.outputs.branch }}\`"
+            echo "- [Preview](${{ needs.create.outputs.preview }})"
+            echo ""
+            echo "El deploy del diff lo hace \`push-on-commit\` al recibir el push."
+          } >> "$GITHUB_STEP_SUMMARY"

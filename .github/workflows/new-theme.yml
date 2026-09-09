@@ -9,6 +9,25 @@ on:
       ticket:
         description: "Ticket asociado (opcional)"
         required: false
+  workflow_call:
+    inputs:
+      name:
+        required: true
+        type: string
+      ticket:
+        required: false
+        type: string
+        default: ""
+    outputs:
+      branch:
+        description: "Branch creada"
+        value: ${{ jobs.create.outputs.branch }}
+      theme_id:
+        description: "Theme ID creado"
+        value: ${{ jobs.create.outputs.theme_id }}
+      preview:
+        description: "Preview link del theme"
+        value: ${{ jobs.create.outputs.preview }}
 
 permissions:
   contents: write
@@ -24,6 +43,10 @@ env:
 jobs:
   create:
     runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.names.outputs.branch }}
+      theme_id: ${{ steps.create.outputs.theme_id }}
+      preview: ${{ steps.create.outputs.preview }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -37,6 +60,7 @@ jobs:
       - run: npm i -g @shopify/cli
 
       - name: Definir nombres
+        id: names
         run: |
           SLUG=$(echo "${{ inputs.name }}" \
             | tr '[:upper:]' '[:lower:]' \
@@ -57,6 +81,7 @@ jobs:
           echo "BRANCH=theme/$SLUG" >> "$GITHUB_ENV"
           echo "TITLE=$TITLE"       >> "$GITHUB_ENV"
           echo "TICKET=$TICKET"     >> "$GITHUB_ENV"
+          echo "branch=theme/$SLUG" >> "$GITHUB_OUTPUT"
 
       - name: Verificar que la branch no exista
         run: |
@@ -87,6 +112,7 @@ jobs:
           git push -u origin "$BRANCH"
 
       - name: Crear el theme en Shopify
+        id: create
         run: |
           OUT=$(shopify theme push --unpublished --json \
                 --theme "$TITLE" --path .)
@@ -98,6 +124,8 @@ jobs:
           fi
 
           echo "THEME_ID=$THEME_ID" >> "$GITHUB_ENV"
+          echo "theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
+          echo "preview=https://${{ vars.SHOP_DOMAIN }}/?_ab=0&_fd=0&_sc=1&preview_theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
           echo "Theme creado: $THEME_ID"
 
       - name: Registrar en themes.json
