@@ -65,7 +65,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Fijar el modelo: el default (claude-opus-5[1m]) usa la ventana de 1M,
           # un beta que la API key puede no tener → falla con is_error y 0 uso.
-          claude_args: "--model claude-sonnet-5"
+          # --dangerously-skip-permissions: en CI headless no hay aprobador
+          # interactivo; sin esto Claude Code bloquea toda escritura ("allowed
+          # working directories for this session"). El runner corre como usuario
+          # no-root, así que el flag es aceptado.
+          claude_args: "--model claude-sonnet-5 --dangerously-skip-permissions"
           show_full_output: true   # DEBUG temporal: ver qué hace el agente
           prompt: |
             Sos un agente que resuelve tareas sobre un theme de Shopify editando
