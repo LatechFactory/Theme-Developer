@@ -124,5 +124,14 @@
     "created": "2026-09-09",
     "last_push": null,
     "status": "open"
+  },
+  "191213109562": {
+    "branch": "theme/agent-run-test-scopejsons2",
+    "title": "444 - agent-run-test-scopejsons2",
+    "ticket": "444",
+    "origin": "sistema",
+    "created": "2026-09-09",
+    "last_push": null,
+    "status": "open"
   }
 }
