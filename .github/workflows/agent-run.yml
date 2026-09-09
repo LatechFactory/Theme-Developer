@@ -128,5 +128,15 @@ jobs:
             echo "- Branch: \`${{ needs.create.outputs.branch }}\`"
             echo "- [Preview](${{ needs.create.outputs.preview }})"
             echo ""
-            echo "El deploy del diff lo hace \`push-on-commit\` al recibir el push."
+            echo "El deploy del diff lo hace el job \`deploy\` (push-on-commit reusable)."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # (3) deploy sincrónico: llama a push-on-commit como reusable con la branch del
+  # agente. Este job SÍ lleva el token de Shopify (vía la reusable), pero es un
+  # job aparte del agente → la frontera de seguridad se mantiene.
+  deploy:
+    needs: [create, agent]
+    uses: ./.github/workflows/push-on-commit.yml
+    with:
+      branch: ${{ needs.create.outputs.branch }}
+    secrets: inherit

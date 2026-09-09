@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - "theme/**"
+  workflow_call:
+    inputs:
+      branch:
+        description: "Branch a deployar (para llamadas reusable, ej. desde agent-run)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -22,6 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          # En push, github.ref = la branch pusheada; en workflow_call, inputs.branch.
+          ref: ${{ inputs.branch || github.ref }}
           fetch-depth: 2
 
       - uses: actions/setup-node@v5
@@ -36,7 +44,8 @@ jobs:
           git show origin/main:themes.json > /tmp/registry.json 2>/dev/null \
             || { echo "No hay themes.json en main"; exit 1; }
 
-          BRANCH="${GITHUB_REF#refs/heads/}"
+          BRANCH="${{ inputs.branch }}"
+          [ -z "$BRANCH" ] && BRANCH="${GITHUB_REF#refs/heads/}"
 
           THEME_ID=$(jq -r --arg b "$BRANCH" \
             'to_entries[] | select(.value.branch == $b) | .key' /tmp/registry.json)
