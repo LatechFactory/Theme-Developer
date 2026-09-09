@@ -142,5 +142,14 @@
     "created": "2026-09-09",
     "last_push": null,
     "status": "open"
+  },
+  "191213961530": {
+    "branch": "theme/agent-run-test-permisosescritura",
+    "title": "666 - agent-run-test-permisosescritura",
+    "ticket": "666",
+    "origin": "sistema",
+    "created": "2026-09-09",
+    "last_push": null,
+    "status": "open"
   }
 }
