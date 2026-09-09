@@ -1,8 +1,10 @@
 # Agente de IA que resuelve tickets — arquitectura
 
-**Estado: propuesta de diseño. NADA de esto está implementado todavía.**
-No modifica los workflows existentes. Los cambios que menciona sobre ellos
-(reusable `new-theme`, inputs `actor`/`shop`) son **pendientes**, no aplicados.
+**Estado: Fase 1 HECHA y validada end-to-end. Fases 2 y 3 pendientes.**
+Fase 1 (`agent-run.yml`, disparo manual con la tarea pegada) crea el theme,
+el agente aplica el fix y el deploy sincrónico lo sube a Shopify — probado.
+Los inputs `actor`/`shop` (Fase 2) y el self-check visual (Fase 3) siguen sin
+implementar. Ver §12.1 (trampas de implementación) para lo que costó.
 
 ---
 
@@ -230,8 +232,10 @@ El ruteo por modelo es una razón concreta para pasar a Opción B (SDK).
 
 - **Techo de calidad:** arrancar con tickets **acotados y bien especificados**
   (estilo, copy, Liquid simple), no features complejas. Setear expectativas.
-- **JSON de máquina:** el agente prefiere no tocarlo (§6 regla 2); si lo hace, la
-  política B lo anota en el merge.
+- **JSON:** el agente edita el archivo donde viva el cambio, sin trato especial
+  por tipo (el contenido/copy del merchant vive en templates/*.json y
+  settings_data.json). La política B cubre el riesgo en el merge (anotación +
+  revisión visual).
 - **El agente crea un theme por ticket** → acelera el tope de 20. **El reaper
   (etapa 6) es prerrequisito** para que el uso del agente sea sostenible.
 - **Costo:** centavos a pocos dólares por ticket según complejidad; se acota con
@@ -241,12 +245,38 @@ El ruteo por modelo es una razón concreta para pasar a Opción B (SDK).
 
 ## 12. Orden de implementación
 
-1. **Fase 1:** secret `ANTHROPIC_API_KEY`; `new-theme` con `workflow_call`;
-   `agent-run.yml` con `workflow_dispatch` + Claude Code Action → preview.
-   Validar calidad con tickets a mano.
+1. **Fase 1 — HECHA.** `new-theme` con `workflow_call`; `agent-run.yml`
+   (`workflow_dispatch`, jobs `create` → `agent` → `deploy`) + Claude Code Action;
+   `push-on-commit` convertido en reusable para el deploy sincrónico. Validado:
+   ticket a mano → theme → fix aplicado → deploy a Shopify.
 2. **Fase 2:** pasar el agente a Agent SDK (control + ruteo de modelo); webhook
    Jira/Trello → DO → `repository_dispatch`; post-back a la card; loop de iteración.
 3. **Fase 3:** self-check visual (Playwright + screenshots).
 
 **Prerrequisito transversal:** el **reaper** (evita que el agente ahogue el tope
 de 20 themes).
+
+### 12.1 Trampas de implementación (Fase 1) — no re-derivar
+
+Costó una cadena de bloqueos, cada uno con el mismo síntoma genérico
+(`is_error: true`) pero causa distinta:
+
+- **Auth: el token es de suscripción, no API key.** Un `sk-ant-oat01-` (de
+  `claude setup-token`) va en el input `claude_code_oauth_token`, NO en
+  `anthropic_api_key`. Con el input equivocado: 0 uso, 0 costo, `is_error`.
+- **Modelo: el default usa la ventana de 1M (`claude-opus-5[1m]`)**, un beta que
+  la cuenta puede no tener → falla con 0 uso. Fijar el modelo:
+  `claude_args: "--model claude-sonnet-5"`.
+- **Escritura bloqueada en CI.** Sin aprobador interactivo, Claude Code bloquea
+  toda escritura ("allowed working directories for this session"). Hay que pasar
+  `--dangerously-skip-permissions` en `claude_args` (el runner es no-root, lo acepta).
+- **El `GITHUB_TOKEN` no dispara otros workflows.** El push del agente con el
+  token por defecto NO dispara `push-on-commit` → no deployaba. Solución: `deploy`
+  como job reusable (`push-on-commit` con `workflow_call`), encadenado por `needs`.
+  Bonus: deploy **sincrónico** (run verde = ya deployado).
+- **Diagnóstico:** con `show_full_output: true` en la Action se ve lo que hace
+  Claude (se saca después; es ruidoso y expone el output).
+
+**Config que quedó funcionando** (en `agent-run.yml`, job `agent`):
+`claude_code_oauth_token` + `claude_args: "--model claude-sonnet-5 --dangerously-skip-permissions"`,
+y el deploy vía job reusable, no vía el evento push.

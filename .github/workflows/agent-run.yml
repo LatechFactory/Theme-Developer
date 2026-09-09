@@ -70,7 +70,6 @@ jobs:
           # working directories for this session"). El runner corre como usuario
           # no-root, así que el flag es aceptado.
           claude_args: "--model claude-sonnet-5 --dangerously-skip-permissions"
-          show_full_output: true   # DEBUG temporal: ver qué hace el agente
           prompt: |
             Sos un agente que resuelve tareas sobre un theme de Shopify editando
             sus archivos. Leé el CLAUDE.md del repo para las convenciones, PERO

@@ -25,7 +25,8 @@ convenciones y trampas ya descubiertas.
 | 4b — Merge apply (`merge-apply.yml`, política B) | Hecho, validado en Actions (limpio + conflicto) |
 | 5 — Gate de JSON | Absorbido en 4b como anotación (política B) |
 | Alta manual (`adopt-theme.yml` + webhook) | Hecho, validado end-to-end (webhook DO → adopt-theme) |
-| 6 — Reaper | **Siguiente** (era lo último; ya es lo único del core que falta) |
+| Agente IA — Fase 1 (`agent-run.yml`) | Hecho, validado end-to-end (ticket a mano → fix → deploy) |
+| 6 — Reaper | **Siguiente** (único del core que falta; prereq del uso sostenido del agente) |
 
 **Guard de rol validado:** se publicó un theme a propósito y `push-on-commit`
 abortó en "Verificar que no sea el live" con `rol 'live'` → exit 1, saltando
@@ -43,6 +44,14 @@ Actions → un endpoint DigitalOcean Function (`webhook/`) verifica HMAC y dispa
 idempotente por ID y saltea el live. Camino explícito por `workflow_dispatch`
 con el theme ID. Firma del webhook = **client secret** de la app (no un secret
 aparte). Probado: duplicar un theme en el admin crea la branch automáticamente.
+
+**Agente IA Fase 1 (validada):** `agent-run.yml` (`workflow_dispatch`, jobs
+`create` → `agent` → `deploy`) resuelve una tarea escrita a mano editando el
+theme y deployando. Config que funciona: `claude_code_oauth_token` (token de
+suscripción `sk-ant-oat01-`, NO API key), `claude_args: "--model claude-sonnet-5
+--dangerously-skip-permissions"`, y deploy vía `push-on-commit` reusable (el push
+del agente con `GITHUB_TOKEN` no dispara workflows). Diseño y trampas completas
+en `docs/AI-AGENT.md` (§12.1). Fase 2 (webhook Jira/Trello + SDK) pendiente.
 
 **Trampa de DO Functions (`web: raw`):** el body llega como **texto plano** en
 `__ow_body`, NO base64. Hay que calcular el HMAC sobre `Buffer.from(body,"utf8")`.
