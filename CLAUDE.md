@@ -6,9 +6,10 @@ fuentes: el theme editor del admin, un IDE, y agentes de código.
 Repo: `LatechFactory/Theme-Developer`
 Tienda de desarrollo: `develop-latech.myshopify.com`
 
-El diseño completo está en `docs/DESIGN.md`. La propuesta de UI embebida (aún
-no implementada) está en `docs/EMBEDDED-UI.md`. Este archivo es el contexto
-operativo: estado actual, convenciones y trampas ya descubiertas.
+El diseño completo está en `docs/DESIGN.md`. Propuestas aún no implementadas:
+`docs/EMBEDDED-UI.md` (UI embebida) y `docs/AI-AGENT.md` (agente de IA que
+resuelve tickets). Este archivo es el contexto operativo: estado actual,
+convenciones y trampas ya descubiertas.
 
 ---
 
