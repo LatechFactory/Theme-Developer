@@ -66,9 +66,16 @@ jobs:
           # Fijar el modelo: el default (claude-opus-5[1m]) usa la ventana de 1M,
           # un beta que la API key puede no tener → falla con is_error y 0 uso.
           claude_args: "--model claude-sonnet-5"
+          show_full_output: true   # DEBUG temporal: ver qué hace el agente
           prompt: |
             Sos un agente que resuelve tareas sobre un theme de Shopify editando
-            sus archivos. Leé el CLAUDE.md del repo para las convenciones.
+            sus archivos. Leé el CLAUDE.md del repo para las convenciones, PERO
+            tené en cuenta: estás en una branch de trabajo `theme/*` (NO en main),
+            y tu tarea ES editar los archivos del theme para resolver el ticket.
+            La regla de CLAUDE.md "no editar los archivos del theme a mano en main"
+            aplica a main y a personas, NO a vos en esta branch: acá editar el
+            theme es exactamente lo que corresponde. Aplicá el cambio REALMENTE en
+            los archivos con tus tools de edición; no describas solo qué harías.
 
             TAREA
             ${{ inputs.task }}
