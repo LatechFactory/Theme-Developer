@@ -106,5 +106,14 @@
     "created": "2026-09-09",
     "last_push": null,
     "status": "open"
+  },
+  "191211307322": {
+    "branch": "theme/agent-run-test-sonnet",
+    "title": "222 - agent-run-test-sonnet",
+    "ticket": "222",
+    "origin": "sistema",
+    "created": "2026-09-09",
+    "last_push": null,
+    "status": "open"
   }
 }
