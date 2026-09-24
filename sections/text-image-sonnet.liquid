@@ -9,6 +9,16 @@
     assign has_image = true
   endif
 
+  assign has_subheading = false
+  if section.settings.subheading != blank
+    assign has_subheading = true
+  endif
+
+  assign has_subheading_icon = false
+  if section.settings.subheading_icon != blank
+    assign has_subheading_icon = true
+  endif
+
   assign wrapper_classes = 'text-image-sonnet'
   unless has_image
     assign wrapper_classes = wrapper_classes | append: ' text-image-sonnet--no-image'
@@ -25,8 +35,21 @@
 >
   <div class="text-image-sonnet__grid">
     <div class="text-image-sonnet__content">
-      {% if section.settings.subheading != blank %}
-        <p class="text-image-sonnet__eyebrow">{{ section.settings.subheading | escape }}</p>
+      {% if has_subheading or has_subheading_icon %}
+        <div class="text-image-sonnet__eyebrow-row">
+          {% if has_subheading_icon %}
+            <span class="text-image-sonnet__eyebrow-icon">
+              {{
+                section.settings.subheading_icon
+                | image_url: width: 64
+                | image_tag: loading: 'lazy', widths: '32, 64', alt: ''
+              }}
+            </span>
+          {% endif %}
+          {% if has_subheading %}
+            <p class="text-image-sonnet__eyebrow">{{ section.settings.subheading | escape }}</p>
+          {% endif %}
+        </div>
       {% endif %}
 
       {% if section.settings.heading != blank %}
@@ -95,9 +118,30 @@
     text-align: left;
   }
 
+  .text-image-sonnet__eyebrow-row {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+    font-size: var(--font-paragraph--size);
+  }
+
+  .text-image-sonnet__eyebrow-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 1.15em;
+    height: 1.15em;
+  }
+
+  .text-image-sonnet__eyebrow-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
   .text-image-sonnet__eyebrow {
     margin: 0;
-    font-size: var(--font-paragraph--size);
+    font-size: inherit;
     font-weight: var(--font-h6--weight, 600);
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -170,6 +214,12 @@
       "id": "subheading",
       "label": "Subtítulo",
       "default": "Subtítulo"
+    },
+    {
+      "type": "image_picker",
+      "id": "subheading_icon",
+      "label": "Ícono del subtítulo",
+      "info": "Se muestra a la izquierda del subtítulo, del mismo tamaño que su texto. Si no se selecciona, no se muestra ningún ícono."
     },
     {
       "type": "inline_richtext",
