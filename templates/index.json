@@ -16,7 +16,7 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>Slice 2 OK</p>",
+            "text": "<p>agent sonnete</p>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
@@ -293,10 +293,25 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "text_image_sonnet_1": {
+      "type": "text-image-sonnet",
+      "name": "Text with image (Sonnet)",
+      "settings": {
+        "subheading": "Subtítulo",
+        "heading": "Título de la sección",
+        "description": "<p>Agregá una descripción breve que acompañe el título y ayude a comunicar el mensaje de esta sección.</p>",
+        "button_label": "Descubrir más",
+        "button_link": "shopify://collections/all",
+        "open_in_new_tab": false,
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
+    "text_image_sonnet_1",
     "product_list_fa6P9H"
   ]
 }

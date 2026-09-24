@@ -1,0 +1,248 @@
+{% comment %}
+  Text + image section, two columns on desktop (text left, image right).
+  If no image is selected, the text column becomes centered.
+{% endcomment %}
+
+{% liquid
+  assign has_image = false
+  if section.settings.image != blank
+    assign has_image = true
+  endif
+
+  assign wrapper_classes = 'text-image-sonnet'
+  unless has_image
+    assign wrapper_classes = wrapper_classes | append: ' text-image-sonnet--no-image'
+  endunless
+%}
+
+<div class="section-background"></div>
+<div
+  class="section section--page-width spacing-style {{ wrapper_classes }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+>
+  <div class="text-image-sonnet__grid">
+    <div class="text-image-sonnet__content">
+      {% if section.settings.subheading != blank %}
+        <p class="text-image-sonnet__eyebrow">{{ section.settings.subheading | escape }}</p>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2 class="text-image-sonnet__heading">{{ section.settings.heading }}</h2>
+      {% endif %}
+
+      {% if section.settings.description != blank %}
+        <div class="text-image-sonnet__description rte">{{ section.settings.description }}</div>
+      {% endif %}
+
+      {% if section.settings.button_label != blank %}
+        <a
+          href="{{ section.settings.button_link | default: '#' }}"
+          class="button text-image-sonnet__button"
+          {% if section.settings.open_in_new_tab %}
+            target="_blank"
+            rel="noopener noreferrer"
+          {% endif %}
+          {% if section.settings.button_link == blank %}
+            role="link"
+            aria-disabled="true"
+          {% endif %}
+        >
+          {{ section.settings.button_label | escape }}
+        </a>
+      {% endif %}
+    </div>
+
+    {% if has_image %}
+      <div class="text-image-sonnet__media">
+        {{
+          section.settings.image
+          | image_url: width: 1600
+          | image_tag:
+            loading: 'lazy',
+            sizes: '(min-width: 750px) 50vw, 100vw',
+            widths: '375, 550, 750, 1100, 1500, 1600',
+            class: 'text-image-sonnet__image',
+            alt: section.settings.image.alt | default: section.settings.heading | escape
+        }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .text-image-sonnet .text-image-sonnet__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    gap: var(--gap-2xl);
+  }
+
+  @media screen and (min-width: 750px) {
+    .text-image-sonnet .text-image-sonnet__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap-3xl);
+    }
+  }
+
+  .text-image-sonnet__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--gap-lg);
+    text-align: left;
+  }
+
+  .text-image-sonnet__eyebrow {
+    margin: 0;
+    font-size: var(--font-paragraph--size);
+    font-weight: var(--font-h6--weight, 600);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-foreground-muted, currentcolor);
+  }
+
+  .text-image-sonnet__heading {
+    margin: 0;
+  }
+
+  .text-image-sonnet__description {
+    margin: 0;
+    max-width: 42rem;
+    color: var(--color-foreground-subdued, currentcolor);
+  }
+
+  .text-image-sonnet__button {
+    margin-top: var(--gap-xs);
+  }
+
+  .text-image-sonnet__media {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+
+  .text-image-sonnet__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media screen and (min-width: 750px) {
+    .text-image-sonnet .text-image-sonnet__media {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 420px;
+      align-self: stretch;
+    }
+  }
+
+  /* Centered content when no image is selected */
+  .text-image-sonnet--no-image .text-image-sonnet__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .text-image-sonnet--no-image .text-image-sonnet__content {
+    align-items: center;
+    text-align: center;
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+
+  .text-image-sonnet--no-image .text-image-sonnet__description {
+    max-width: 100%;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Text with image (Sonnet)",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Contenido"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subtítulo",
+      "default": "Subtítulo"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Título",
+      "default": "Título de la sección"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Descripción",
+      "default": "<p>Agregá una descripción breve que acompañe el título y ayude a comunicar el mensaje de esta sección.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Botón"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto del botón",
+      "default": "Descubrir más"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Enlace del botón"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_in_new_tab",
+      "label": "Abrir enlace en una pestaña nueva",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Imagen"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Imagen",
+      "info": "Si no se selecciona una imagen, el contenido se centra."
+    },
+    {
+      "type": "header",
+      "content": "Espaciado"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Espaciado superior",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Espaciado inferior",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Text with image (Sonnet)"
+    }
+  ]
+}
+{% endschema %}
