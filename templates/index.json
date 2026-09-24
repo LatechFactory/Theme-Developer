@@ -16,7 +16,7 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>Slice 2 OK</p>",
+            "text": "<p>agente web ui</p>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
