@@ -16,7 +16,7 @@
           "type": "text",
           "name": "t:names.heading",
           "settings": {
-            "text": "<p>Slice 4 OK</p>",
+            "text": "<p>selector de stores ok</p>",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
