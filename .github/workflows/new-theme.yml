@@ -42,7 +42,7 @@ concurrency:
 
 jobs:
   create:
-    uses: LatechFactory/theme-workflows-core/.github/workflows/new-theme.yml@v1
+    uses: LatechFactory/theme-workflows-core/.github/workflows/new-theme.yml@main
     with:
       name: ${{ inputs.name }}
       ticket: ${{ inputs.ticket }}

@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   pull:
-    uses: LatechFactory/theme-workflows-core/.github/workflows/mirror.yml@v1
+    uses: LatechFactory/theme-workflows-core/.github/workflows/mirror.yml@main
     with:
       shop_domain: ${{ vars.SHOP_DOMAIN }}
     secrets: inherit

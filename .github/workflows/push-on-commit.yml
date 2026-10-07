@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   deploy:
-    uses: LatechFactory/theme-workflows-core/.github/workflows/push-on-commit.yml@v1
+    uses: LatechFactory/theme-workflows-core/.github/workflows/push-on-commit.yml@main
     with:
       branch: ${{ inputs.branch || github.ref_name }}
       shop_domain: ${{ vars.SHOP_DOMAIN }}

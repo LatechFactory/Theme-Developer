@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   adopt:
-    uses: LatechFactory/theme-workflows-core/.github/workflows/adopt-theme.yml@v1
+    uses: LatechFactory/theme-workflows-core/.github/workflows/adopt-theme.yml@main
     with:
       theme_id: ${{ github.event.client_payload.id || inputs.theme_id }}
       shop_domain: ${{ vars.SHOP_DOMAIN }}

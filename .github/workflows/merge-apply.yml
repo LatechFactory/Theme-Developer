@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   apply:
-    uses: LatechFactory/theme-workflows-core/.github/workflows/merge-apply.yml@v1
+    uses: LatechFactory/theme-workflows-core/.github/workflows/merge-apply.yml@main
     with:
       origen: ${{ inputs.origen }}
       destino: ${{ inputs.destino }}

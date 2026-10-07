@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   dry-run:
-    uses: LatechFactory/theme-workflows-core/.github/workflows/merge.yml@v1
+    uses: LatechFactory/theme-workflows-core/.github/workflows/merge.yml@main
     with:
       origen: ${{ inputs.origen }}
       destino: ${{ inputs.destino }}
