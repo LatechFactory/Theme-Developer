@@ -1,5 +1,7 @@
 name: mirror-live-theme
 
+# Thin caller → theme-workflows-core. Triggers del store: schedule diario + manual.
+
 on:
   schedule:
     - cron: "0 6 * * *"
@@ -12,34 +14,9 @@ concurrency:
   group: registry
   cancel-in-progress: false
 
-env:
-  SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
-  SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
-
 jobs:
   pull:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-
-      - run: npm i -g @shopify/cli
-
-      - name: Pull del theme live
-        run: shopify theme pull --live --force --path .
-
-      - name: Commit si hay cambios
-        run: |
-          git config user.name "theme-merge"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "Sin cambios"
-          else
-            git commit -m "mirror: $(date -u +%Y-%m-%d\ %H:%M) UTC"
-            git pull --rebase origin main
-            git push origin main
-          fi
+    uses: LatechFactory/theme-workflows-core/.github/workflows/mirror.yml@v1
+    with:
+      shop_domain: ${{ vars.SHOP_DOMAIN }}
+    secrets: inherit

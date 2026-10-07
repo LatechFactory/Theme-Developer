@@ -1,5 +1,9 @@
 name: new-theme
 
+# Thin caller → theme-workflows-core. La logica vive en el repo central; aca solo
+# los triggers del store (workflow_dispatch + el tool create_theme de eve) y, para
+# que agent-run.yml lo siga llamando como reusable, workflow_call con outputs.
+
 on:
   workflow_dispatch:
     inputs:
@@ -36,129 +40,11 @@ concurrency:
   group: registry
   cancel-in-progress: false
 
-env:
-  SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_THEME_TOKEN }}
-  SHOPIFY_FLAG_STORE: ${{ vars.SHOP_DOMAIN }}
-
 jobs:
   create:
-    runs-on: ubuntu-latest
-    outputs:
-      branch: ${{ steps.names.outputs.branch }}
-      theme_id: ${{ steps.create.outputs.theme_id }}
-      preview: ${{ steps.create.outputs.preview }}
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-
-      - run: npm i -g @shopify/cli
-
-      - name: Definir nombres
-        id: names
-        run: |
-          SLUG=$(echo "${{ inputs.name }}" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed 's/[^a-z0-9]\+/-/g; s/^-//; s/-$//')
-
-          if [ -z "$SLUG" ]; then
-            echo "El nombre no produjo un slug valido"; exit 1
-          fi
-
-          TICKET="${{ inputs.ticket }}"
-          if [ -n "$TICKET" ]; then
-            TITLE="$TICKET - $SLUG"
-          else
-            TITLE="$SLUG"
-          fi
-
-          echo "SLUG=$SLUG"         >> "$GITHUB_ENV"
-          echo "BRANCH=theme/$SLUG" >> "$GITHUB_ENV"
-          echo "TITLE=$TITLE"       >> "$GITHUB_ENV"
-          echo "TICKET=$TICKET"     >> "$GITHUB_ENV"
-          echo "branch=theme/$SLUG" >> "$GITHUB_OUTPUT"
-
-      - name: Verificar que la branch no exista
-        run: |
-          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
-            echo "La branch $BRANCH ya existe"; exit 1
-          fi
-
-      - name: Configurar git
-        run: |
-          git config user.name "theme-merge"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Pull del theme live
-        run: |
-          shopify theme pull --live --force --path .
-          git add -A
-          if git diff --cached --quiet; then
-            echo "main ya estaba al dia"
-          else
-            git commit -m "mirror: previo a $BRANCH"
-            git pull --rebase origin main
-            git push origin main
-          fi
-
-      - name: Crear la branch
-        run: |
-          git checkout -b "$BRANCH"
-          git push -u origin "$BRANCH"
-
-      - name: Crear el theme en Shopify
-        id: create
-        run: |
-          OUT=$(shopify theme push --unpublished --json \
-                --theme "$TITLE" --path .)
-          echo "$OUT"
-
-          THEME_ID=$(echo "$OUT" | jq -r '.theme.id')
-          if [ -z "$THEME_ID" ] || [ "$THEME_ID" = "null" ]; then
-            echo "No se pudo crear el theme"; exit 1
-          fi
-
-          echo "THEME_ID=$THEME_ID" >> "$GITHUB_ENV"
-          echo "theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
-          echo "preview=https://${{ vars.SHOP_DOMAIN }}/?_ab=0&_fd=0&_sc=1&preview_theme_id=$THEME_ID" >> "$GITHUB_OUTPUT"
-          echo "Theme creado: $THEME_ID"
-
-      - name: Registrar en themes.json
-        run: |
-          git checkout main
-          git pull --rebase origin main
-
-          [ -f themes.json ] || echo '{}' > themes.json
-
-          jq --arg id "$THEME_ID" \
-             --arg branch "$BRANCH" \
-             --arg title "$TITLE" \
-             --arg ticket "$TICKET" \
-             --arg created "$(date -u +%Y-%m-%d)" \
-             '.[$id] = {
-                branch: $branch,
-                title: $title,
-                ticket: $ticket,
-                origin: "sistema",
-                created: $created,
-                last_push: null,
-                status: "open"
-              }' themes.json > tmp.json && mv tmp.json themes.json
-
-          git add themes.json
-          git commit -m "registro: $TITLE ($THEME_ID)"
-          git push origin main
-
-      - name: Resumen
-        run: |
-          {
-            echo "### Theme creado"
-            echo "- **$TITLE** (\`$THEME_ID\`)"
-            echo "- Branch: \`$BRANCH\`"
-            echo "- [Preview](https://${{ vars.SHOP_DOMAIN }}/?_ab=0&_fd=0&_sc=1&preview_theme_id=$THEME_ID)"
-          } >> "$GITHUB_STEP_SUMMARY"
+    uses: LatechFactory/theme-workflows-core/.github/workflows/new-theme.yml@v1
+    with:
+      name: ${{ inputs.name }}
+      ticket: ${{ inputs.ticket }}
+      shop_domain: ${{ vars.SHOP_DOMAIN }}
+    secrets: inherit
