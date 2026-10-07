@@ -160,5 +160,86 @@
     "created": "2026-09-09",
     "last_push": "2026-09-09T21:06:22Z",
     "status": "open"
+  },
+  "191591907642": {
+    "branch": "theme/agent-live-test",
+    "title": "agent-live-test",
+    "ticket": "",
+    "origin": "sistema",
+    "created": "2026-09-22",
+    "last_push": "2026-09-22T20:48:34Z",
+    "status": "open"
+  },
+  "191622906170": {
+    "branch": "theme/agente-slice2",
+    "title": "agente-slice2",
+    "ticket": "",
+    "origin": "sistema",
+    "created": "2026-09-23",
+    "last_push": "2026-09-23T18:54:03Z",
+    "status": "open"
+  },
+  "191624282426": {
+    "branch": "theme/agente-slice2-1",
+    "title": "agente-slice2-1",
+    "ticket": "",
+    "origin": "sistema",
+    "created": "2026-09-23",
+    "last_push": "2026-09-23T19:28:42Z",
+    "status": "open"
+  },
+  "191646236986": {
+    "branch": "theme/agente-web-ui",
+    "title": "agente-web-ui",
+    "ticket": "",
+    "origin": "sistema",
+    "created": "2026-09-24",
+    "last_push": "2026-09-24T13:06:01Z",
+    "status": "open"
+  },
+  "191647351098": {
+    "branch": "theme/agente-sonnet",
+    "title": "agente-sonnet",
+    "ticket": "",
+    "origin": "sistema",
+    "created": "2026-09-24",
+    "last_push": "2026-09-24T14:20:59Z",
+    "status": "open"
+  },
+  "191654920506": {
+    "branch": "theme/fix-titulo",
+    "title": "fix-titulo",
+    "ticket": "",
+    "origin": "sistema",
+    "created": "2026-09-24",
+    "last_push": "2026-09-24T19:17:51Z",
+    "status": "open"
+  },
+  "191655018810": {
+    "branch": "theme/copy-of-agente-slice2",
+    "title": "Copy of agente-slice2",
+    "ticket": "",
+    "origin": "manual",
+    "created": "2026-09-24",
+    "last_push": null,
+    "status": "open"
+  },
+  "191805030714": {
+    "branch": "theme/copy-of-agente-slice2-191805030714",
+    "title": "Copy of agente-slice2",
+    "ticket": "",
+    "origin": "manual",
+    "created": "2026-09-29",
+    "last_push": null,
+    "status": "open"
+  },
+  "191805391162": {
+    "branch": "theme/copy-of-agente-slice2-191805391162",
+    "title": "Copy of agente-slice2",
+    "ticket": "",
+    "origin": "manual",
+    "created": "2026-09-29",
+    "last_push": null,
+    "status": "open"
   }
 }
