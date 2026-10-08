@@ -1,0 +1,26 @@
+name: prepare-theme
+
+# Thin caller → theme-workflows-core. FASE 2: prepara la branch de un theme existente con
+# su contenido actual, para fixear sobre él. Lo dispara eve (tool prepare_theme).
+
+on:
+  workflow_dispatch:
+    inputs:
+      theme_id:
+        description: "Theme ID a preparar"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: registry
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    uses: LatechFactory/theme-workflows-core/.github/workflows/prepare-theme.yml@main
+    with:
+      theme_id: ${{ inputs.theme_id }}
+      shop_domain: ${{ vars.SHOP_DOMAIN }}
+    secrets: inherit
