@@ -1,0 +1,21 @@
+name: list-themes
+
+# Thin caller → theme-workflows-core. FASE 1: listado de themes del store.
+# Lo dispara eve (tool list_themes) al seleccionar el store / elegir un theme.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: list-themes
+  cancel-in-progress: true
+
+jobs:
+  list:
+    uses: LatechFactory/theme-workflows-core/.github/workflows/list-themes.yml@main
+    with:
+      shop_domain: ${{ vars.SHOP_DOMAIN }}
+    secrets: inherit
