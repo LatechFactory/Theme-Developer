@@ -1,0 +1,136 @@
+{%- comment -%}
+  "Beneficios" — grid of up to 3 editable benefit items (icon + title + text).
+{%- endcomment -%}
+
+<div
+  class="section beneficios-section spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}; background-color: {{ section.settings.background_color }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="beneficios-section__inner">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="beneficios-section__heading" style="color: {{ section.settings.heading_color }}">
+        {{ section.settings.heading }}
+      </h2>
+    {%- endif -%}
+    <div class="beneficios-section__grid">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .beneficios-section__inner {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  .beneficios-section__heading {
+    margin: 0 0 40px;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .beneficios-section__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .beneficios-section__inner {
+      padding-inline: 20px;
+    }
+
+    .beneficios-section__grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Beneficios",
+  "tag": "section",
+  "class": "section-wrapper",
+  "blocks": [
+    {
+      "type": "_benefit-item"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Por qué comprarnos"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Color del título",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Color de fondo",
+      "default": "#F9FAFB"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "presets": [
+    {
+      "name": "Beneficios",
+      "blocks": [
+        {
+          "type": "_benefit-item",
+          "settings": {
+            "icon": "truck",
+            "heading": "Envío gratis",
+            "text": "Despachamos a todo el país en 24/48hs."
+          }
+        },
+        {
+          "type": "_benefit-item",
+          "settings": {
+            "icon": "lock",
+            "heading": "Pago seguro",
+            "text": "Tus datos y tu compra siempre protegidos."
+          }
+        },
+        {
+          "type": "_benefit-item",
+          "settings": {
+            "icon": "return",
+            "heading": "Cambios fáciles",
+            "text": "30 días para cambiar tu producto sin vueltas."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

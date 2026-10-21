@@ -293,10 +293,53 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "beneficios_bnQ2wX": {
+      "type": "beneficios",
+      "blocks": {
+        "benefit_1": {
+          "type": "_benefit-item",
+          "settings": {
+            "icon": "truck",
+            "heading": "Envío gratis",
+            "text": "Despachamos a todo el país en 24/48hs."
+          }
+        },
+        "benefit_2": {
+          "type": "_benefit-item",
+          "settings": {
+            "icon": "lock",
+            "heading": "Pago seguro",
+            "text": "Tus datos y tu compra siempre protegidos."
+          }
+        },
+        "benefit_3": {
+          "type": "_benefit-item",
+          "settings": {
+            "icon": "return",
+            "heading": "Cambios fáciles",
+            "text": "30 días para cambiar tu producto sin vueltas."
+          }
+        }
+      },
+      "block_order": [
+        "benefit_1",
+        "benefit_2",
+        "benefit_3"
+      ],
+      "name": "Beneficios",
+      "settings": {
+        "heading": "Por qué comprarnos",
+        "heading_color": "#111827",
+        "background_color": "#F9FAFB",
+        "padding-block-start": 56,
+        "padding-block-end": 56
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
+    "beneficios_bnQ2wX",
     "product_list_fa6P9H"
   ]
 }

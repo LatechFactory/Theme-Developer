@@ -1,0 +1,131 @@
+{%- liquid
+  assign icon_class = 'benefit-item__icon-svg'
+-%}
+
+<div class="benefit-item" {{ block.shopify_attributes }}>
+  <span class="benefit-item__icon" style="color: {{ block.settings.icon_color }}">
+    {%- render 'icon-or-image',
+      icon: block.settings.icon,
+      image_upload: block.settings.image,
+      width: 32,
+      class_name: icon_class
+    -%}
+  </span>
+  {%- if block.settings.heading != blank -%}
+    <h3 class="benefit-item__title">{{ block.settings.heading }}</h3>
+  {%- endif -%}
+  {%- if block.settings.text != blank -%}
+    <p class="benefit-item__text">{{ block.settings.text }}</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .benefit-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .benefit-item__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+  }
+
+  .benefit-item__icon-svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .benefit-item__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .benefit-item__text {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Beneficio",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Ícono"
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:settings.icon",
+      "options": [
+        { "value": "none", "label": "t:options.none" },
+        { "value": "apple", "label": "t:options.apple" },
+        { "value": "arrow", "label": "t:options.arrow" },
+        { "value": "bottle", "label": "t:options.bottle" },
+        { "value": "box", "label": "t:options.box" },
+        { "value": "chat_bubble", "label": "t:options.chat_bubble" },
+        { "value": "check_box", "label": "t:options.check_box" },
+        { "value": "clipboard", "label": "t:options.clipboard" },
+        { "value": "eye", "label": "t:options.eye" },
+        { "value": "fire", "label": "t:options.fire" },
+        { "value": "heart", "label": "t:options.heart" },
+        { "value": "leaf", "label": "t:options.leaf" },
+        { "value": "lightning_bolt", "label": "t:options.lightning_bolt" },
+        { "value": "lock", "label": "t:options.lock" },
+        { "value": "map_pin", "label": "t:options.map_pin" },
+        { "value": "price_tag", "label": "t:options.price_tag" },
+        { "value": "question_mark", "label": "t:options.question_mark" },
+        { "value": "recycle", "label": "t:options.recycle" },
+        { "value": "return", "label": "t:options.return" },
+        { "value": "star", "label": "t:options.star" },
+        { "value": "stopwatch", "label": "t:options.stopwatch" },
+        { "value": "truck", "label": "t:options.truck" }
+      ],
+      "default": "check_box"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image_icon",
+      "info": "Si se elige una imagen, reemplaza al ícono."
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Color del ícono",
+      "default": "#111827"
+    },
+    {
+      "type": "header",
+      "content": "Contenido"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Envío gratis"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "default": "Despachamos a todo el país en 24/48hs."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Beneficio"
+    }
+  ]
+}
+{% endschema %}
